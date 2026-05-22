@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Installation Guide — Claude Skills Directory</title>
+<meta name="description" content="How to install Claude Agent Skills on Claude Code, the Claude API, claude.ai, and via plugins / MCP. Includes troubleshooting." />
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div class="scroll-progress"></div>
+
+<header class="topbar">
+  <div class="container nav">
+    <a href="index.html" class="brand">
+      <!-- <span class="brand-mark">C</span> -->
+      <span class="brand-text">Skills Directory</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html"><span>Home</span></a>
+      <a href="directory.html"><span>Directory</span></a>
+      <a href="install.html" class="active"><span>Install</span></a>
+      <a href="guide.html"><span>Guide</span></a>
+      <a href="create.html"><span>Build a Skill</span></a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="kbd-hint" data-palette-trigger aria-label="Search skills">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Search <kbd>⌘K</kbd>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
+      <a class="cta" href="directory.html">Browse →</a>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer" id="mobile-drawer">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="directory.html">Directory</a>
+    <a href="install.html" class="active">Install</a>
+    <a href="guide.html">Guide</a>
+    <a href="create.html">Build a Skill</a>
+  </nav>
+</div>
+
+<main class="container install-page">
+  <div class="frame frame-page" data-frame-name="Page / Install Guide" id="frame-install-page">
+    <div class="frame-label">
+      <span class="f-chev">▸</span>
+      <span class="f-icon"></span>
+      <span class="f-name">Install Guide</span>
+      <span class="f-meta">/ Page · Long-form</span>
+    </div>
+    <div class="frame-handles"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+  <h1>Installation Guide</h1>
+  <p class="lede">Skills are folders. You install one by putting that folder somewhere Claude reads from, then triggering it with a prompt that matches its description. This page covers all four supported surfaces, with troubleshooting at the bottom.</p>
+
+  <div class="toc">
+    <h4>On this page</h4>
+    <ul>
+      <li><a href="#prereqs">0. Prerequisites</a></li>
+      <li><a href="#anatomy">1. What a skill folder looks like</a></li>
+      <li><a href="#claude-code">2. Claude Code (CLI + IDE)</a></li>
+      <li><a href="#api">3. Claude API</a></li>
+      <li><a href="#claude-ai">4. claude.ai (web + desktop)</a></li>
+      <li><a href="#plugins">5. Via plugins / MCP</a></li>
+      <li><a href="#scopes">6. User vs. project scope</a></li>
+      <li><a href="#verify">7. Verify a skill is loaded</a></li>
+      <li><a href="#trouble">8. Troubleshooting</a></li>
+      <li><a href="#security">9. Security checklist</a></li>
+    </ul>
+  </div>
+
+  <section id="prereqs">
+    <h2>0. Prerequisites</h2>
+    <ul>
+      <li><strong>Claude Code:</strong> install via <code>npm install -g @anthropic-ai/claude-code</code> or the native installer at <a href="https://docs.claude.com/en/docs/claude-code/install" target="_blank" rel="noopener">docs.claude.com/claude-code/install</a>.</li>
+      <li><strong>Claude API:</strong> the latest Anthropic SDK (<code>anthropic ≥ 0.40</code> for Python, <code>@anthropic-ai/sdk ≥ 0.27</code> for Node). Skills require enabling the <code>skills-2025-10-02</code> beta header.</li>
+      <li><strong>claude.ai:</strong> a Pro, Team, or Enterprise plan. Skills are available on Free for the four official document skills only.</li>
+      <li><strong>Git:</strong> most community skills live in GitHub repos you'll clone.</li>
+    </ul>
+  </section>
+
+  <section id="anatomy">
+    <h2>1. What a skill folder looks like</h2>
+    <p>Every skill is a folder containing at minimum a <code>SKILL.md</code> file with YAML frontmatter:</p>
+<pre><span class="c-tok-com">my-skill/</span>
+├── SKILL.md           <span class="c-tok-com"># required — frontmatter + body</span>
+├── scripts/           <span class="c-tok-com"># optional — executables Claude can call</span>
+│   └── run.sh
+├── templates/         <span class="c-tok-com"># optional — files Claude reads/copies</span>
+│   └── report.md
+└── reference/         <span class="c-tok-com"># optional — extra docs loaded on demand</span>
+    └── api.md</pre>
+
+    <p>A minimal SKILL.md:</p>
+<pre><span class="c-tok-com">---</span>
+<span class="c-tok-key">name</span>: my-skill
+<span class="c-tok-key">description</span>: Use this skill when the user asks for X. Triggers on phrases like "do X" or "X this file".
+<span class="c-tok-key">allowed-tools</span>:
+  - Read
+  - Bash
+<span class="c-tok-com">---</span>
+
+<span class="c-tok-h"># My Skill</span>
+
+When the skill loads, do the following:
+1. Read the input file.
+2. Run <span class="c-tok-link">scripts/run.sh</span> with the input.
+3. Report back with the result.</pre>
+
+    <div class="callout">
+      <strong>The description is everything.</strong> Claude decides whether to load your skill based on the description alone — body and bundled files come later via progressive disclosure. Write the description as if it's the only thing Claude will ever see.
+    </div>
+  </section>
+
+  <section id="claude-code">
+    <h2>2. Claude Code (CLI + IDE)</h2>
+    <p>Claude Code reads skills from two locations, scanned every session:</p>
+    <table>
+      <thead><tr><th>Scope</th><th>Path</th><th>When to use</th></tr></thead>
+      <tbody>
+        <tr><td>User</td><td><code>~/.claude/skills/</code></td><td>Skills you want available across every project (commit-message-writer, security-review).</td></tr>
+        <tr><td>Project</td><td><code>.claude/skills/</code> (in the repo)</td><td>Skills specific to one codebase (this-repo's deploy script, a local API client).</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Install from a Git repo</h3>
+<pre><span class="c-tok-com"># 1. clone the source</span>
+git clone https://github.com/anthropics/skills.git /tmp/skills-src
+
+<span class="c-tok-com"># 2. pick a skill, copy it into your user-level skills dir</span>
+mkdir -p ~/.claude/skills
+cp -r /tmp/skills-src/document-skills/pdf ~/.claude/skills/pdf
+
+<span class="c-tok-com"># 3. (optional) pin to a specific commit</span>
+cd /tmp/skills-src &amp;&amp; git rev-parse HEAD &gt; ~/.claude/skills/pdf/.source-commit
+
+<span class="c-tok-com"># 4. start a fresh session — skill is now discoverable</span>
+claude</pre>
+
+    <h3>List installed skills</h3>
+<pre>claude /skills list</pre>
+
+    <h3>Disable a skill without deleting it</h3>
+<pre><span class="c-tok-com"># rename the folder so the loader skips it</span>
+mv ~/.claude/skills/pdf ~/.claude/skills/_pdf.disabled</pre>
+
+    <h3>Project-level (committed to the repo)</h3>
+<pre><span class="c-tok-com"># at the root of your project</span>
+mkdir -p .claude/skills
+git submodule add https://github.com/your-team/internal-skills .claude/skills/internal
+git commit -m <span class="c-tok-str">"Add internal Claude skills as a submodule"</span></pre>
+
+    <div class="callout info">
+      <strong>Tip:</strong> Project-scoped skills are checked in to git and shared with the whole team. User-scoped skills are private to you. Prefer project scope for anything teammates would also benefit from.
+    </div>
+  </section>
+
+  <section id="api">
+    <h2>3. Claude API</h2>
+    <p>The API exposes skills through the <strong>Skills container</strong> attached to a <code>messages.create</code> call. You need:</p>
+    <ol>
+      <li>The beta header <code>skills-2025-10-02</code> on every request that uses skills.</li>
+      <li>A <code>container</code> object listing the skill slugs you want loaded.</li>
+      <li>For custom skills: upload the folder to the Files API first, then reference the file ID.</li>
+    </ol>
+
+    <h3>Python — using built-in skills</h3>
+<pre><span class="c-tok-key">from</span> anthropic <span class="c-tok-key">import</span> Anthropic
+
+client = Anthropic()
+
+response = client.beta.messages.create(
+    model=<span class="c-tok-str">"claude-opus-4-7"</span>,
+    max_tokens=<span class="c-tok-str">4096</span>,
+    betas=[<span class="c-tok-str">"skills-2025-10-02"</span>, <span class="c-tok-str">"code-execution-2025-08-25"</span>],
+    container={
+        <span class="c-tok-str">"skills"</span>: [<span class="c-tok-str">"pdf"</span>, <span class="c-tok-str">"xlsx"</span>, <span class="c-tok-str">"docx"</span>, <span class="c-tok-str">"pptx"</span>],
+    },
+    tools=[{<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"code_execution_20250825"</span>, <span class="c-tok-str">"name"</span>: <span class="c-tok-str">"code_execution"</span>}],
+    messages=[{
+        <span class="c-tok-str">"role"</span>: <span class="c-tok-str">"user"</span>,
+        <span class="c-tok-str">"content"</span>: <span class="c-tok-str">"Fill out the attached PDF form using this CSV of customer data."</span>,
+    }],
+)</pre>
+
+    <h3>Node — uploading and using a custom skill</h3>
+<pre><span class="c-tok-key">import</span> Anthropic <span class="c-tok-key">from</span> <span class="c-tok-str">"@anthropic-ai/sdk"</span>;
+<span class="c-tok-key">import</span> fs <span class="c-tok-key">from</span> <span class="c-tok-str">"fs"</span>;
+
+<span class="c-tok-key">const</span> client = <span class="c-tok-key">new</span> Anthropic();
+
+<span class="c-tok-com">// 1. zip your skill folder, upload via Files API</span>
+<span class="c-tok-key">const</span> file = <span class="c-tok-key">await</span> client.beta.files.upload({
+  file: fs.createReadStream(<span class="c-tok-str">"my-skill.zip"</span>),
+  purpose: <span class="c-tok-str">"skills"</span>,
+});
+
+<span class="c-tok-com">// 2. reference it in the container</span>
+<span class="c-tok-key">const</span> resp = <span class="c-tok-key">await</span> client.beta.messages.create({
+  model: <span class="c-tok-str">"claude-opus-4-7"</span>,
+  max_tokens: <span class="c-tok-str">4096</span>,
+  betas: [<span class="c-tok-str">"skills-2025-10-02"</span>],
+  container: {
+    skills: [{ file_id: file.id }],
+  },
+  messages: [{ role: <span class="c-tok-str">"user"</span>, content: <span class="c-tok-str">"Use my custom skill on this input."</span> }],
+});</pre>
+
+    <div class="callout warn">
+      <strong>Beta surface.</strong> The skills API is in public beta as of 2025-10-02. The beta header name, container shape, and Files API <code>purpose</code> string can change. Pin your SDK version and check the release notes before upgrading.
+    </div>
+  </section>
+
+  <section id="claude-ai">
+    <h2>4. claude.ai (web + desktop)</h2>
+    <ol>
+      <li>Open <a href="https://claude.ai" target="_blank" rel="noopener">claude.ai</a> and sign in.</li>
+      <li>Click your avatar → <strong>Settings</strong>.</li>
+      <li>Open the <strong>Capabilities</strong> tab.</li>
+      <li>Under <strong>Skills</strong>, toggle the built-in skills you want active: <em>PDF, Word, Excel, PowerPoint, Web Design</em>, etc.</li>
+      <li>To add a custom skill, click <strong>Upload skill</strong>, then drag a folder (or .zip) containing a <code>SKILL.md</code>.</li>
+    </ol>
+
+    <p>Custom skills uploaded to claude.ai are private to your account by default. On Team plans, admins can promote a skill to the workspace so it's available to every member.</p>
+
+    <h3>From the desktop app</h3>
+    <p>The macOS / Windows desktop apps share settings with the web app — install skills once via the web UI and they'll be available in the desktop client immediately.</p>
+  </section>
+
+  <section id="plugins">
+    <h2>5. Via plugins / MCP</h2>
+    <p>Some skills don't ship as standalone folders — they're bundled inside a Claude Code <strong>plugin</strong> or an <strong>MCP server</strong>. When you install the plugin / server, the skill becomes available automatically.</p>
+
+    <h3>Install a plugin</h3>
+<pre><span class="c-tok-com"># browse the marketplace</span>
+claude plugin list
+
+<span class="c-tok-com"># install one (example: the Playwright plugin, which ships a browser-test skill)</span>
+claude plugin install playwright
+
+<span class="c-tok-com"># the bundled skill is now in ~/.claude/plugins/playwright/skills/</span></pre>
+
+    <h3>Add an MCP server</h3>
+<pre><span class="c-tok-com"># official Postgres MCP, which advertises skills via its instructions</span>
+claude mcp add postgres @modelcontextprotocol/server-postgres \
+  --env POSTGRES_URL=<span class="c-tok-str">"postgres://localhost/mydb"</span>
+
+<span class="c-tok-com"># confirm the MCP loaded</span>
+claude mcp list</pre>
+
+    <p>For claude.ai, MCP servers are added via Settings → Connectors. Each connector page lists the skills it bundles.</p>
+  </section>
+
+  <section id="scopes">
+    <h2>6. User vs. project scope</h2>
+    <table>
+      <thead><tr><th>Question</th><th>Use user scope</th><th>Use project scope</th></tr></thead>
+      <tbody>
+        <tr><td>Who needs it?</td><td>Just me</td><td>Anyone working on this repo</td></tr>
+        <tr><td>Is it codebase-specific?</td><td>No</td><td>Yes (knows this repo's deploy / DB / API)</td></tr>
+        <tr><td>Is it sensitive?</td><td>Maybe (private API keys)</td><td>Should be safe to commit</td></tr>
+        <tr><td>Path</td><td><code>~/.claude/skills/</code></td><td><code>.claude/skills/</code> (in the repo)</td></tr>
+      </tbody>
+    </table>
+    <p>If both scopes contain a skill with the same name, the <strong>project scope wins</strong>. That lets a team override a personal version with the repo's canonical one.</p>
+  </section>
+
+  <section id="verify">
+    <h2>7. Verify a skill is loaded</h2>
+    <p>The fastest sanity check:</p>
+<pre>claude /skills list</pre>
+    <p>You should see your skill name in the output along with its description. If you don't:</p>
+    <ul>
+      <li>Confirm the folder is in <code>~/.claude/skills/&lt;skill-name&gt;/</code> — not nested in a sub-folder.</li>
+      <li>Confirm <code>SKILL.md</code> exists at the root of the folder (capitalisation matters on Linux).</li>
+      <li>Run <code>claude --debug</code> and look for skill-loader warnings about malformed frontmatter.</li>
+      <li>Restart the session — skills are scanned once at startup.</li>
+    </ul>
+    <p>To confirm the skill <em>triggers</em>, type a prompt matching one of its trigger phrases and watch for the skill-load notification in the transcript.</p>
+  </section>
+
+  <section id="trouble">
+    <h2>8. Troubleshooting</h2>
+    <table>
+      <thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Skill doesn't show in <code>/skills list</code></td>
+          <td>Wrong path, missing SKILL.md, or YAML parse error</td>
+          <td>Check folder location and frontmatter. Run with <code>--debug</code>.</td>
+        </tr>
+        <tr>
+          <td>Skill is listed but never triggers</td>
+          <td>Description is too vague; Claude doesn't realise the user's prompt matches</td>
+          <td>Rewrite the description with concrete trigger phrases. Mention input types, not just outputs.</td>
+        </tr>
+        <tr>
+          <td>"Tool not allowed" when skill runs</td>
+          <td>Skill called a tool not listed in <code>allowed-tools</code></td>
+          <td>Add the tool to frontmatter, or remove the call from the skill.</td>
+        </tr>
+        <tr>
+          <td>API returns <code>skills_not_enabled</code></td>
+          <td>Missing beta header</td>
+          <td>Pass <code>betas=["skills-2025-10-02"]</code> in your <code>messages.create</code> call.</td>
+        </tr>
+        <tr>
+          <td>Two skills with the same name</td>
+          <td>Project scope shadows user scope; both got installed</td>
+          <td>Rename one. The loader emits a warning when names collide.</td>
+        </tr>
+        <tr>
+          <td>Skill bundles a script that won't execute</td>
+          <td>Missing execute bit on macOS/Linux</td>
+          <td><code>chmod +x ~/.claude/skills/&lt;skill&gt;/scripts/*.sh</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="security">
+    <h2>9. Security checklist</h2>
+    <div class="callout warn">
+      <strong>Installing a skill is running code.</strong> A skill folder can ship scripts that Claude will execute when the skill triggers. Treat third-party skills like any other npm package or shell script you'd install on your laptop.
+    </div>
+    <ul>
+      <li><strong>Read SKILL.md first.</strong> See what tools it asks for. <code>Bash</code> and <code>Write</code> are high-trust permissions — make sure the description matches the powers requested.</li>
+      <li><strong>Inspect bundled scripts.</strong> Especially anything in <code>scripts/</code> or <code>hooks/</code>.</li>
+      <li><strong>Pin versions.</strong> Track the source commit. Don't <code>git pull</code> a skills folder you didn't read.</li>
+      <li><strong>Prefer official + reputable community sources.</strong> <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">anthropics/skills</a> is the canonical starting point.</li>
+      <li><strong>Sandbox sensitive work.</strong> For API calls in production, list <em>only</em> the skills you need in <code>container.skills</code> — don't enable everything.</li>
+    </ul>
+  </section>
+
+  <p style="margin-top:40px;"><a class="link" href="guide.html">Next: How skills actually work →</a></p>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container footer-wrap">
+    <div>
+      <span class="brand-mark small">C</span>
+      <strong>Claude Skills Directory</strong>
+      <p class="muted small">Unofficial community resource. Not affiliated with Anthropic.</p>
+    </div>
+    <div class="footer-links">
+      <a href="directory.html">Directory</a>
+      <a href="install.html">Install</a>
+      <a href="guide.html">Guide</a>
+      <a href="create.html">Build a Skill</a>
+    </div>
+  </div>
+</footer>
+
+<button class="fab" id="fab" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-label="Search skills">
+  <div class="palette">
+    <div class="palette-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <label for="palette-input" class="sr-only">Search skills</label>
+      <input id="palette-input" type="text" placeholder="Search 91 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
+      <span class="esc">esc</span>
+    </div>
+    <div class="palette-results" id="palette-results"></div>
+  </div>
+</div>
+
+<script src="skills-data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

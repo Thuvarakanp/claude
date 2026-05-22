@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Build a Skill — Claude Skills Directory</title>
+<meta name="description" content="Step-by-step guide to writing your first Claude Agent Skill — from naming, frontmatter, and triggers to publishing and sharing." />
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div class="scroll-progress"></div>
+
+<header class="topbar">
+  <div class="container nav">
+    <a href="index.html" class="brand">
+      <!-- <span class="brand-mark">C</span> -->
+      <span class="brand-text">Skills Directory</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html"><span>Home</span></a>
+      <a href="directory.html"><span>Directory</span></a>
+      <a href="install.html"><span>Install</span></a>
+      <a href="guide.html"><span>Guide</span></a>
+      <a href="create.html" class="active"><span>Build a Skill</span></a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="kbd-hint" data-palette-trigger aria-label="Search skills">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Search <kbd>⌘K</kbd>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
+      <a class="cta" href="directory.html">Browse →</a>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer" id="mobile-drawer">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="directory.html">Directory</a>
+    <a href="install.html">Install</a>
+    <a href="guide.html">Guide</a>
+    <a href="create.html" class="active">Build a Skill</a>
+  </nav>
+</div>
+
+<main class="container install-page">
+  <div class="frame frame-page" data-frame-name="Page / Build a Skill" id="frame-create-page">
+    <div class="frame-label">
+      <span class="f-chev">▸</span>
+      <span class="f-icon"></span>
+      <span class="f-name">Build a Skill</span>
+      <span class="f-meta">/ Page · Tutorial</span>
+    </div>
+    <div class="frame-handles"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+  <h1>Build your first skill</h1>
+  <p class="lede">A working skill, end-to-end, in under ten minutes. We'll build <code>commit-classifier</code> — a skill that reads <code>git diff --cached</code> and writes a conventional-commit message.</p>
+
+  <div class="toc">
+    <h4>On this page</h4>
+    <ul>
+      <li><a href="#step-1">Step 1 — Decide what the skill does</a></li>
+      <li><a href="#step-2">Step 2 — Create the folder</a></li>
+      <li><a href="#step-3">Step 3 — Write SKILL.md</a></li>
+      <li><a href="#step-4">Step 4 — Add a helper script</a></li>
+      <li><a href="#step-5">Step 5 — Test the trigger</a></li>
+      <li><a href="#step-6">Step 6 — Iterate on the description</a></li>
+      <li><a href="#step-7">Step 7 — Package &amp; publish</a></li>
+      <li><a href="#templates">Templates</a></li>
+      <li><a href="#checklist">Pre-publish checklist</a></li>
+    </ul>
+  </div>
+
+  <section id="step-1">
+    <h2>Step 1 — Decide what the skill does</h2>
+    <p>Before writing any code, answer four questions in one sentence each:</p>
+    <ul>
+      <li><strong>Trigger:</strong> When should Claude invoke this skill? <em>("When the user asks Claude to write a commit message after staging changes.")</em></li>
+      <li><strong>Inputs:</strong> What does it need? <em>("The output of <code>git diff --cached</code> and the project's prior commit style.")</em></li>
+      <li><strong>Output:</strong> What does it produce? <em>("A conventional-commit message printed to the chat, optionally written via <code>git commit -m</code>.")</em></li>
+      <li><strong>Tools:</strong> What permissions does it need? <em>("<code>Bash</code> to run git, that's it.")</em></li>
+    </ul>
+    <p>If you can't answer all four in one sentence, the skill is doing too much. Split it.</p>
+  </section>
+
+  <section id="step-2">
+    <h2>Step 2 — Create the folder</h2>
+<pre>mkdir -p ~/.claude/skills/commit-classifier/scripts
+cd ~/.claude/skills/commit-classifier</pre>
+    <p>Folder name = skill name = the <code>name</code> field in frontmatter. Lowercase kebab-case throughout.</p>
+  </section>
+
+  <section id="step-3">
+    <h2>Step 3 — Write SKILL.md</h2>
+    <p>This is the entire skill. Frontmatter on top, instructions below.</p>
+<pre><span class="c-tok-com">---</span>
+<span class="c-tok-key">name</span>: commit-classifier
+<span class="c-tok-key">description</span>: |
+  Write a conventional-commit-style commit message from the currently staged
+  diff. Triggers when the user asks Claude to "write a commit message",
+  "what should I name this commit", or "/commit" after running git add.
+  Inspects git diff --cached, classifies the change, and produces a tight,
+  project-style message.
+<span class="c-tok-key">allowed-tools</span>:
+  - Bash
+  - Read
+<span class="c-tok-key">version</span>: 0.1.0
+<span class="c-tok-com">---</span>
+
+<span class="c-tok-h"># commit-classifier</span>
+
+When this skill activates:
+
+1. Run <span class="c-tok-link">scripts/inspect.sh</span> to gather:
+   - The staged diff (<span class="c-tok-str">git diff --cached</span>)
+   - The last 10 commit messages (for project style)
+   - The list of staged paths (for scope inference)
+
+2. Classify the change into one of:
+   <span class="c-tok-str">feat | fix | refactor | docs | test | chore | perf | style | build | ci</span>
+
+   Use this rubric:
+   - <span class="c-tok-str">feat</span>: net-new user-facing capability
+   - <span class="c-tok-str">fix</span>: corrects a bug or unintended behavior
+   - <span class="c-tok-str">refactor</span>: internal-only restructuring, no behavior change
+   - <span class="c-tok-str">docs</span>: only .md / comment / README changes
+   - <span class="c-tok-str">test</span>: only test-file changes
+   - <span class="c-tok-str">chore</span>: deps, lockfiles, version bumps
+
+3. Pick a scope from the changed paths. Prefer the deepest directory
+   shared by &gt;50% of changed files (e.g., <span class="c-tok-str">auth</span>, <span class="c-tok-str">api/users</span>).
+
+4. Write a subject line:
+   - Imperative mood ("add", not "added")
+   - Under 60 characters
+   - No trailing period
+   - Format: <span class="c-tok-str">&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;</span>
+
+5. Print the message in a code block. Do NOT run <span class="c-tok-str">git commit</span>
+   yourself unless the user explicitly asks you to.
+
+<span class="c-tok-h">## Examples</span>
+
+Good:
+- <span class="c-tok-str">feat(auth): add WebAuthn passkey enrollment</span>
+- <span class="c-tok-str">fix(api/users): handle null email on social signup</span>
+- <span class="c-tok-str">refactor(db): collapse user + session loaders</span>
+
+Bad (and why):
+- <span class="c-tok-str">"Update files"</span> — no type, no scope, no signal
+- <span class="c-tok-str">"feat: lots of changes"</span> — vague subject
+- <span class="c-tok-str">"feat(auth): added new login flow."</span> — past tense, trailing period</pre>
+  </section>
+
+  <section id="step-4">
+    <h2>Step 4 — Add a helper script</h2>
+    <p>Anything deterministic should live in a script, not in the markdown. It saves tokens, runs the same every time, and is testable on its own.</p>
+<pre><span class="c-tok-com"># scripts/inspect.sh</span>
+<span class="c-tok-com">#!/usr/bin/env bash</span>
+<span class="c-tok-key">set</span> -euo pipefail
+
+<span class="c-tok-com">echo "=== Staged paths ==="</span>
+git diff --cached --name-only
+
+<span class="c-tok-com">echo</span>
+<span class="c-tok-com">echo "=== Staged diff ==="</span>
+git diff --cached --stat
+git diff --cached
+
+<span class="c-tok-com">echo</span>
+<span class="c-tok-com">echo "=== Recent commit messages ==="</span>
+git log -10 --pretty=format:<span class="c-tok-str">"%s"</span></pre>
+
+<pre>chmod +x scripts/inspect.sh</pre>
+    <div class="callout info">
+      <strong>Why a script?</strong> A 30-line shell file is faster, cheaper, and more reliable than getting the model to assemble three git invocations correctly every time. Skills get better when you offload determinism to code.
+    </div>
+  </section>
+
+  <section id="step-5">
+    <h2>Step 5 — Test the trigger</h2>
+    <p>Open a fresh Claude Code session in a repo with staged changes and try variations:</p>
+    <ul>
+      <li><em>"Write a commit message for what I just staged"</em> → should activate</li>
+      <li><em>"What should I name this commit?"</em> → should activate</li>
+      <li><em>"Help me think about my architecture"</em> → should <strong>not</strong> activate</li>
+    </ul>
+    <p>Watch the transcript for the skill-loaded notification. If the skill doesn't activate when you expect, your description is too narrow. If it activates when you don't expect, it's too broad.</p>
+  </section>
+
+  <section id="step-6">
+    <h2>Step 6 — Iterate on the description</h2>
+    <p>This is where 80% of skill quality comes from. Tighten the description in passes:</p>
+    <ul>
+      <li><strong>Pass 1 — Trigger phrases.</strong> List the exact phrases users say. Quote them in the description.</li>
+      <li><strong>Pass 2 — Negative scope.</strong> If you're getting false positives, add "Does NOT apply to X" sentences.</li>
+      <li><strong>Pass 3 — Input shape.</strong> Mention attached files, staged state, current branch — whatever context clues separate this from related skills.</li>
+    </ul>
+  </section>
+
+  <section id="step-7">
+    <h2>Step 7 — Package &amp; publish</h2>
+    <p>To share with teammates, commit the folder to a public or private repo:</p>
+<pre>cd ~/.claude/skills/commit-classifier
+git init
+git add SKILL.md scripts/
+git commit -m <span class="c-tok-str">"Initial commit-classifier skill"</span>
+gh repo create my-team/claude-commit-classifier --public --source=. --push</pre>
+
+    <p>Teammates install with:</p>
+<pre>git clone https://github.com/my-team/claude-commit-classifier \
+  ~/.claude/skills/commit-classifier</pre>
+
+    <p>For wider distribution, submit a PR to a community skills index (<a href="https://github.com/topics/claude-skills" target="_blank" rel="noopener">github.com/topics/claude-skills</a>) so it shows up in searches.</p>
+  </section>
+
+  <section id="templates">
+    <h2>Templates</h2>
+
+    <h3>Minimal SKILL.md</h3>
+<pre><span class="c-tok-com">---</span>
+<span class="c-tok-key">name</span>: my-skill
+<span class="c-tok-key">description</span>: One sentence saying when to use this skill and what it does.
+<span class="c-tok-com">---</span>
+
+<span class="c-tok-h"># My Skill</span>
+
+When invoked, do X, then Y.</pre>
+
+    <h3>Skill with Bash + bundled script</h3>
+<pre><span class="c-tok-com">---</span>
+<span class="c-tok-key">name</span>: my-skill
+<span class="c-tok-key">description</span>: Trigger phrase, more phrase, action verb describing what it does.
+<span class="c-tok-key">allowed-tools</span>:
+  - Bash
+  - Read
+<span class="c-tok-com">---</span>
+
+<span class="c-tok-h"># My Skill</span>
+
+1. Run <span class="c-tok-link">scripts/run.sh</span> to gather inputs.
+2. Decide based on output.
+3. Report back to the user.</pre>
+
+    <h3>Skill with multi-step lookup table</h3>
+<pre><span class="c-tok-com">---</span>
+<span class="c-tok-key">name</span>: api-error-helper
+<span class="c-tok-key">description</span>: |
+  When the user pastes an HTTP error response from our API or asks
+  "what does error X mean", look up the code in reference/errors.md
+  and walk through the documented remediation.
+<span class="c-tok-key">allowed-tools</span>:
+  - Read
+<span class="c-tok-com">---</span>
+
+<span class="c-tok-h"># API Error Helper</span>
+
+1. Find the error code in <span class="c-tok-link">reference/errors.md</span>.
+2. Quote the description and the listed remediation steps.
+3. If the code is not listed, say so explicitly. Do not guess.</pre>
+  </section>
+
+  <section id="checklist">
+    <h2>Pre-publish checklist</h2>
+    <ul>
+      <li>[ ] <code>name</code> matches the folder name (kebab-case)</li>
+      <li>[ ] <code>description</code> includes 2+ concrete trigger phrases</li>
+      <li>[ ] <code>allowed-tools</code> is the minimum needed — no extra <code>Bash</code> / <code>Write</code></li>
+      <li>[ ] Scripts have an execute bit (<code>chmod +x</code>)</li>
+      <li>[ ] Heavy reference content is in <code>reference/*.md</code>, not inlined</li>
+      <li>[ ] Tested with three positive trigger phrases and two negatives</li>
+      <li>[ ] Tested in a fresh session, not just the one where you built it</li>
+      <li>[ ] README explains what the skill does, install command, and version compatibility</li>
+      <li>[ ] LICENSE file (MIT, Apache-2.0, or BSL — pick one)</li>
+    </ul>
+  </section>
+
+  <div class="callout">
+    <strong>One more thing.</strong> The <code>skill-creator</code> skill in the official repo will scaffold all of this for you. Install it once, then say "create a new skill that does X" — it'll generate the folder, write the frontmatter, and remind you of the checklist above.
+  </div>
+
+  <p style="margin-top:40px;"><a class="link" href="directory.html">← Back to the directory</a></p>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container footer-wrap">
+    <div>
+      <span class="brand-mark small">C</span>
+      <strong>Claude Skills Directory</strong>
+      <p class="muted small">Unofficial community resource. Not affiliated with Anthropic.</p>
+    </div>
+    <div class="footer-links">
+      <a href="directory.html">Directory</a>
+      <a href="install.html">Install</a>
+      <a href="guide.html">Guide</a>
+      <a href="create.html">Build a Skill</a>
+    </div>
+  </div>
+</footer>
+
+<button class="fab" id="fab" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-label="Search skills">
+  <div class="palette">
+    <div class="palette-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <label for="palette-input" class="sr-only">Search skills</label>
+      <input id="palette-input" type="text" placeholder="Search 91 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
+      <span class="esc">esc</span>
+    </div>
+    <div class="palette-results" id="palette-results"></div>
+  </div>
+</div>
+
+<script src="skills-data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
