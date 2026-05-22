@@ -1529,6 +1529,32 @@ body { padding-top: 88px; }
   margin-left: 4px;
 }
 
+/* Designer credit line — author callout */
+.footer-credit-line {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 22px 0;
+  border-top: 1px solid rgba(255,255,255,.05);
+  font-size: .95rem;
+  color: var(--muted);
+  letter-spacing: -.005em;
+}
+.footer-credit-line .credit-spark {
+  width: 14px; height: 14px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.footer-credit-line .credit-name {
+  background: linear-gradient(120deg, var(--accent) 0%, var(--aurora-2) 50%, var(--aurora-3) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  font-size: 1rem;
+  animation: gradient-shift 8s ease-in-out infinite;
+  white-space: nowrap;
+}
+
 .footer-bottom {
   display: flex;
   justify-content: space-between;
