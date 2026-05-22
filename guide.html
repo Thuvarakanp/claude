@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Skills Guide — How Claude Skills Work — Claude Skills Directory</title>
+<title>How Skills Work — Claude Pro Guide</title>
 <meta name="description" content="The conceptual guide to Claude Agent Skills: progressive disclosure, frontmatter, allowed-tools, triggers, and the difference between skills, slash commands, and MCP." />
 <link rel="stylesheet" href="styles.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -17,18 +17,17 @@
 <header class="topbar">
   <div class="container nav">
     <a href="index.html" class="brand">
-      <!-- <span class="brand-mark">C</span> -->
-      <span class="brand-text">Skills Directory</span>
+      <span class="brand-text">Claude Pro Guide</span>
     </a>
     <nav class="nav-links">
-      <a href="index.html"><span>Home</span></a>
-      <a href="directory.html"><span>Directory</span></a>
-      <a href="install.html"><span>Install</span></a>
-      <a href="guide.html" class="active"><span>Guide</span></a>
-      <a href="create.html"><span>Build a Skill</span></a>
+      <a href="quickstart.html"><span>Quickstart</span></a>
+      <a href="directory.html" class="active"><span>Skills</span></a>
+      <a href="mcp.html"><span>MCP</span></a>
+      <a href="plugins.html"><span>Plugins</span></a>
+      <a href="api.html"><span>API</span></a>
     </nav>
     <div style="display:flex;align-items:center;gap:10px;">
-      <button class="kbd-hint" data-palette-trigger aria-label="Search skills">
+      <button class="kbd-hint" data-palette-trigger aria-label="Search">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         Search <kbd>⌘K</kbd>
       </button>
@@ -41,24 +40,20 @@
 <div class="mobile-drawer" id="mobile-drawer">
   <nav>
     <a href="index.html">Home</a>
-    <a href="directory.html">Directory</a>
-    <a href="install.html">Install</a>
-    <a href="guide.html" class="active">Guide</a>
-    <a href="create.html">Build a Skill</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="directory.html" class="active">Skills</a>
+    <a href="mcp.html">MCP</a>
+    <a href="plugins.html">Plugins</a>
+    <a href="api.html">API</a>
+    <a href="commands.html">Commands</a>
+    <a href="hooks.html">Hooks</a>
+    <a href="models.html">Models</a>
   </nav>
 </div>
 
 <main class="container install-page">
-  <div class="frame frame-page" data-frame-name="Page / Guide" id="frame-guide-page">
-    <div class="frame-label">
-      <span class="f-chev">▸</span>
-      <span class="f-icon"></span>
-      <span class="f-name">Guide</span>
-      <span class="f-meta">/ Page · How Skills Work</span>
-    </div>
-    <div class="frame-handles"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
   <h1>How Claude Skills work</h1>
-  <p class="lede">Skills are Anthropic's answer to the question: "how do I give Claude a new capability without bloating every prompt with instructions for it?". Read this once and the rest of the system makes sense.</p>
+  <p class="lede">Skills are Anthropic's answer to "how do I give Claude a new capability without bloating every prompt with instructions for it?". Read this once and the rest of the system makes sense.</p>
 
   <div class="toc">
     <h4>On this page</h4>
@@ -78,14 +73,8 @@
 
   <section id="what">
     <h2>1. What a skill actually is</h2>
-    <p>A skill is a folder. That folder contains:</p>
-    <ul>
-      <li>One required file: <code>SKILL.md</code>, with YAML frontmatter on top and free-form markdown below.</li>
-      <li>Zero or more bundled assets — scripts, templates, reference docs, schemas — that the skill body refers to.</li>
-    </ul>
-    <p>That's it. There's no compilation step, no runtime, no JavaScript framework. A skill is a piece of documentation Claude reads, plus some files it can choose to open or execute while the skill is active.</p>
-
-    <p>Concretely:</p>
+    <p>A skill is a folder containing one required file: <code>SKILL.md</code> (YAML frontmatter + markdown body), plus optional bundled assets — scripts, templates, reference docs, schemas.</p>
+    <p>There's no compilation step, no runtime, no framework. A skill is a piece of documentation Claude reads, plus files it can open or execute while the skill is active.</p>
 <pre>pdf/
 ├── SKILL.md
 ├── scripts/
@@ -101,12 +90,11 @@
     <h2>2. Why skills exist (vs. system prompts)</h2>
     <p>You <em>could</em> teach Claude how to fill PDF forms by jamming five pages of pypdf docs into the system prompt. That has three problems:</p>
     <ol>
-      <li><strong>Bloat:</strong> every prompt pays the token cost, even ones that have nothing to do with PDFs.</li>
+      <li><strong>Bloat:</strong> every prompt pays the token cost, even ones unrelated to PDFs.</li>
       <li><strong>Distraction:</strong> a giant system prompt makes Claude worse at unrelated tasks.</li>
-      <li><strong>Lock-in:</strong> the capability is welded to one product / one team's prompt — not portable.</li>
+      <li><strong>Lock-in:</strong> the capability is welded to one prompt — not portable.</li>
     </ol>
-    <p>Skills solve all three. They're <em>portable</em> (a folder you can move between surfaces), <em>lazy</em> (only loaded when relevant), and <em>composable</em> (combine many in one session without exploding context).</p>
-
+    <p>Skills solve all three. They're <em>portable</em>, <em>lazy</em> (only loaded when relevant), and <em>composable</em>.</p>
     <div class="callout">
       <strong>Mental model:</strong> a system prompt is everything Claude is told <em>up front</em>. A skill is a capability Claude <em>opts into</em> when the conversation calls for it.
     </div>
@@ -114,16 +102,16 @@
 
   <section id="disclosure">
     <h2>3. Progressive disclosure</h2>
-    <p>The killer design choice. Claude doesn't see your skill's full body unless it decides to use it.</p>
+    <p>Claude doesn't see your skill's full body unless it decides to use it.</p>
     <table>
       <thead><tr><th>Stage</th><th>What Claude sees</th><th>When</th></tr></thead>
       <tbody>
         <tr><td>Discovery</td><td>Only frontmatter — name + description</td><td>Always, for every installed skill</td></tr>
         <tr><td>Activation</td><td>Full SKILL.md body</td><td>When the user's prompt matches the description</td></tr>
-        <tr><td>Drill-down</td><td>Bundled files (scripts, reference, templates)</td><td>When the skill's body says "see <code>reference/form_fields.md</code>"</td></tr>
+        <tr><td>Drill-down</td><td>Bundled files (scripts, reference, templates)</td><td>When the skill's body references them</td></tr>
       </tbody>
     </table>
-    <p>This is why you can install 50 skills without context bloat. Until one triggers, Claude only spends tokens on the descriptions — typically a sentence each.</p>
+    <p>This is why you can install 50 skills without context bloat — Claude only spends tokens on descriptions until one triggers.</p>
   </section>
 
   <section id="frontmatter">
@@ -140,19 +128,17 @@
 <span class="c-tok-key">author</span>: string               <span class="c-tok-com"># optional</span>
 <span class="c-tok-key">license</span>: string              <span class="c-tok-com"># optional, SPDX id</span>
 <span class="c-tok-com">---</span></pre>
-
     <ul>
       <li><strong><code>name</code></strong> — must match the folder name. Lowercase kebab-case.</li>
-      <li><strong><code>description</code></strong> — written for the model, not for humans. Lead with <em>when</em> to use the skill, then <em>what it does</em>. Concrete trigger phrases (in quotes) help a lot.</li>
-      <li><strong><code>allowed-tools</code></strong> — restrict the skill to a subset of session tools. Useful for safety: a "render HTML" skill shouldn't need <code>Bash</code>.</li>
-      <li><strong><code>model</code></strong> — pin a specific model for this skill. Rare, mostly for cost-sensitive workflows that don't need Opus.</li>
+      <li><strong><code>description</code></strong> — written for the model. Lead with <em>when</em>, then <em>what</em>. Concrete trigger phrases help.</li>
+      <li><strong><code>allowed-tools</code></strong> — cap the tools the skill can use. Useful for safety.</li>
+      <li><strong><code>model</code></strong> — pin a model. Rare. Mostly for cost-sensitive workflows.</li>
     </ul>
   </section>
 
   <section id="triggers">
     <h2>5. How triggers work</h2>
-    <p>There's no regex. There's no keyword list. When the user sends a message, Claude reads the descriptions of every installed skill and picks the ones that look relevant. That's it.</p>
-
+    <p>There's no regex, no keyword list. When you send a message, Claude reads the descriptions of every installed skill and picks the ones that look relevant.</p>
     <p>This is why the description matters so much. Bad descriptions never trigger. Good ones trigger reliably without false positives.</p>
 
     <h3>A bad description</h3>
@@ -165,28 +151,26 @@
   from PDF", "merge PDFs", or when a .pdf file is attached.</pre>
 
     <div class="callout info">
-      <strong>Rule of thumb:</strong> if a teammate could read the description and know exactly when to invoke the skill, Claude can too. If the description is vague to a human, it'll be vague to the model.
+      <strong>Rule of thumb:</strong> if a teammate could read the description and know when to invoke the skill, Claude can too.
     </div>
   </section>
 
   <section id="tools">
     <h2>6. allowed-tools and trust</h2>
-    <p>Skills can scope down which tools they're allowed to call. This protects you from a skill that drifts in scope — a "summarize this doc" skill has no business calling <code>Bash</code>.</p>
-
-    <p>If <code>allowed-tools</code> is omitted, the skill inherits whatever the session already has. If it's present, the listed tools are the <em>maximum</em> — the skill can never exceed them, even if the session is more permissive.</p>
-
-    <p>For high-trust skills (anything that writes to disk, calls the network, or executes scripts), pair <code>allowed-tools</code> with explicit per-script permission prompts in your <code>settings.json</code>.</p>
+    <p>Skills can scope down which tools they're allowed to call. A "summarize this doc" skill has no business calling <code>Bash</code>.</p>
+    <p>If <code>allowed-tools</code> is omitted, the skill inherits session tools. If listed, those are the <em>maximum</em> — the skill can never exceed them even if the session is more permissive.</p>
+    <p>For high-trust skills, pair <code>allowed-tools</code> with explicit per-script permission rules in <code>settings.json</code>. See <a href="hooks.html">Hooks</a> for blocking dangerous operations.</p>
   </section>
 
   <section id="composition">
     <h2>7. Composing multiple skills</h2>
-    <p>Skills layer. A single user prompt can activate several:</p>
+    <p>Skills layer. A single prompt can activate several:</p>
     <ul>
-      <li><strong>"Generate a financial-projection deck from this Excel file"</strong> → activates <code>xlsx</code> (read the data), <code>data-viz</code> (build the charts), <code>pptx</code> (write the deck), and <code>web-design</code> (apply tasteful styling).</li>
-      <li><strong>"Push the auth page design into Figma"</strong> → activates <code>figma-use</code> (mandatory pre-flight) and <code>figma-generate-design</code> (the actual push).</li>
-      <li><strong>"Review my branch for security issues"</strong> → activates <code>security-review</code>, which under the hood pulls in <code>github-pr-ops</code> if there's an open PR.</li>
+      <li><strong>"Generate a financial-projection deck from this Excel file"</strong> → activates <code>xlsx</code>, <code>data-viz</code>, <code>pptx</code>, and <code>web-design</code>.</li>
+      <li><strong>"Push the auth page design into Figma"</strong> → activates <code>figma-use</code> and <code>figma-generate-design</code>.</li>
+      <li><strong>"Review my branch for security issues"</strong> → activates <code>security-review</code>, plus <code>github-pr-ops</code> if there's an open PR.</li>
     </ul>
-    <p>Skills don't communicate with each other directly. They each contribute instructions to Claude's working memory, and Claude orchestrates the result.</p>
+    <p>Skills don't talk to each other — they each contribute instructions, and Claude orchestrates.</p>
   </section>
 
   <section id="vs">
@@ -196,77 +180,125 @@
       <tbody>
         <tr>
           <td>What is it?</td>
-          <td>A folder of instructions + assets Claude loads on demand</td>
+          <td>A folder of instructions Claude loads on demand</td>
           <td>A user-typed shortcut to a prompt template</td>
-          <td>A long-running process exposing tools / resources via a protocol</td>
-          <td>Persistent facts that stay across sessions</td>
+          <td>A long-running process exposing tools / resources</td>
+          <td>Persistent facts across sessions</td>
         </tr>
         <tr>
           <td>Triggered by</td>
-          <td>The user's natural language matching the description</td>
+          <td>Natural language matching the description</td>
           <td>The user typing <code>/name</code></td>
           <td>Claude calling one of its tools</td>
-          <td>Recalled when relevant to the current task</td>
+          <td>Recalled when relevant</td>
         </tr>
         <tr>
           <td>Lives where?</td>
           <td><code>~/.claude/skills/</code></td>
           <td><code>~/.claude/commands/</code></td>
-          <td>External process, registered in settings.json</td>
+          <td>External process, registered in <code>mcp.json</code></td>
           <td><code>~/.claude/memory/</code></td>
         </tr>
         <tr>
           <td>Best for</td>
           <td>Capabilities (write Excel, run review)</td>
-          <td>Workflows (open standup template)</td>
-          <td>Integrations (talk to Postgres, Slack, Linear)</td>
-          <td>User/project facts, preferences, history</td>
+          <td>Workflows (standup template)</td>
+          <td>Integrations (Postgres, Slack, Linear)</td>
+          <td>User/project facts and preferences</td>
         </tr>
       </tbody>
     </table>
-    <p>These layer happily. A skill can call MCP tools. A slash command can suggest a skill. Memory can remind Claude that a skill exists.</p>
+    <p>These layer. A skill can call MCP tools. A slash command can suggest a skill. See <a href="commands.html">Commands</a> and <a href="mcp.html">MCP</a> for deeper dives.</p>
   </section>
 
   <section id="lifecycle">
     <h2>9. Skill lifecycle in a session</h2>
     <ol>
-      <li><strong>Session start:</strong> the loader scans <code>~/.claude/skills/</code> and <code>.claude/skills/</code>, parses each SKILL.md frontmatter, and registers the (name, description) pairs.</li>
-      <li><strong>User sends a prompt:</strong> Claude sees the prompt + all registered (name, description) pairs.</li>
-      <li><strong>Selection:</strong> Claude decides one or more skills are relevant and silently loads their full SKILL.md bodies.</li>
-      <li><strong>Execution:</strong> the skill body becomes part of Claude's working memory. It may call tools, read bundled files, or write outputs.</li>
-      <li><strong>Hand-off:</strong> as the conversation evolves, irrelevant skills "fade" — their content is not actively referenced. New skills can activate later in the same session.</li>
+      <li><strong>Session start:</strong> loader scans skills directories, parses frontmatter, registers (name, description) pairs.</li>
+      <li><strong>User sends a prompt:</strong> Claude sees prompt + all registered pairs.</li>
+      <li><strong>Selection:</strong> Claude decides relevant skills and loads their full SKILL.md bodies.</li>
+      <li><strong>Execution:</strong> skill body becomes part of working memory. It may call tools, read bundled files, or write outputs.</li>
+      <li><strong>Hand-off:</strong> irrelevant skills "fade". New skills can activate later in the same session.</li>
     </ol>
   </section>
 
   <section id="patterns">
     <h2>10. Best-practice patterns</h2>
     <ul>
-      <li><strong>One job per skill.</strong> A skill called "do-everything-with-pdf" is harder to trigger reliably than three skills for fill / merge / extract.</li>
-      <li><strong>Front-load the description.</strong> Put trigger phrases in the first sentence, not buried.</li>
-      <li><strong>Lazy-load heavy reference.</strong> Don't dump 10K tokens of API docs into SKILL.md. Reference a <code>reference/api.md</code> the body links to.</li>
-      <li><strong>Prefer scripts to inline code.</strong> If the skill needs to run something deterministic (parse a PDF, validate JSON), put it in <code>scripts/</code> and have Claude call it. Reproducibility goes up; token usage goes down.</li>
-      <li><strong>Test the trigger.</strong> After writing a skill, ask Claude variations of the expected user prompts and confirm it activates. If it doesn't, the description is wrong.</li>
-      <li><strong>Version when you ship.</strong> If teammates depend on the skill, pin a version and bump it on breaking changes.</li>
+      <li><strong>One job per skill.</strong> Split "do-everything-with-pdf" into fill / merge / extract.</li>
+      <li><strong>Front-load the description.</strong> Trigger phrases in the first sentence.</li>
+      <li><strong>Lazy-load heavy reference.</strong> Don't dump 10K tokens of API docs into SKILL.md.</li>
+      <li><strong>Prefer scripts to inline code</strong> for anything deterministic.</li>
+      <li><strong>Test the trigger.</strong> Ask Claude variations of expected prompts; confirm it activates.</li>
+      <li><strong>Version when you ship.</strong> Pin and bump on breaking changes.</li>
     </ul>
   </section>
 
   <p style="margin-top:40px;"><a class="link" href="create.html">Next: build your first skill →</a></p>
-  </div>
 </main>
 
 <footer class="footer">
-  <div class="container footer-wrap">
-    <div>
-      <span class="brand-mark small">C</span>
-      <strong>Claude Skills Directory</strong>
-      <p class="muted small">Unofficial community resource. Not affiliated with Anthropic.</p>
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <strong>Claude Pro Guide</strong>
+      </div>
+      <p>The unofficial pro reference for working with Claude — skills, MCP, plugins, hooks, the API, and the 4.x models, covered end to end.</p>
+      <div class="footer-social">
+        <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener" aria-label="anthropics/skills on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.7-5.5 6 .5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        </a>
+        <a href="https://docs.claude.com" target="_blank" rel="noopener" aria-label="Claude documentation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        </a>
+        <a href="https://console.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic API console">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </a>
+        <a href="https://www.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
+      </div>
     </div>
-    <div class="footer-links">
-      <a href="directory.html">Directory</a>
-      <a href="install.html">Install</a>
-      <a href="guide.html">Guide</a>
-      <a href="create.html">Build a Skill</a>
+
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="directory.html">Skills directory</a>
+      <a href="mcp.html">MCP</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="api.html">API</a>
     </div>
+
+    <div class="footer-col">
+      <h4>Reference</h4>
+      <a href="commands.html">Slash commands</a>
+      <a href="hooks.html">Hooks</a>
+      <a href="models.html">Models</a>
+      <a href="guide.html">How skills work</a>
+      <a href="create.html">Build a skill</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com<span class="ext">↗</span></a>
+      <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">anthropics/skills<span class="ext">↗</span></a>
+      <a href="https://console.anthropic.com" target="_blank" rel="noopener">API console<span class="ext">↗</span></a>
+      <a href="https://www.anthropic.com" target="_blank" rel="noopener">Anthropic<span class="ext">↗</span></a>
+      <a href="https://github.com/topics/claude-skills" target="_blank" rel="noopener">Community skills<span class="ext">↗</span></a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <div class="footer-meta">
+      <span>© 2026 Claude Pro Guide</span>
+      <span class="sep"></span>
+      <span>Unofficial community resource</span>
+      <span class="sep"></span>
+      <span>Not affiliated with Anthropic</span>
+    </div>
+    <a class="footer-back-top" href="#top">Back to top
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </a>
   </div>
 </footer>
 
@@ -274,12 +306,12 @@
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
 
-<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-label="Search skills">
+<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-label="Search">
   <div class="palette">
     <div class="palette-search">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <label for="palette-input" class="sr-only">Search skills</label>
-      <input id="palette-input" type="text" placeholder="Search 91 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
+      <input id="palette-input" type="text" placeholder="Search 101 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
       <span class="esc">esc</span>
     </div>
     <div class="palette-results" id="palette-results"></div>

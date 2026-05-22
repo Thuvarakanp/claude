@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Quickstart — Claude Pro Guide</title>
+<meta name="description" content="A-to-Z setup for every Claude surface: claude.ai, Claude Code CLI, IDE extensions, the API, and mobile. Pick your path, get running in 10 minutes." />
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div class="scroll-progress"></div>
+
+<header class="topbar">
+  <div class="container nav">
+    <a href="index.html" class="brand">
+      <span class="brand-text">Claude Pro Guide</span>
+    </a>
+    <nav class="nav-links">
+      <a href="quickstart.html" class="active"><span>Quickstart</span></a>
+      <a href="directory.html"><span>Skills</span></a>
+      <a href="mcp.html"><span>MCP</span></a>
+      <a href="plugins.html"><span>Plugins</span></a>
+      <a href="api.html"><span>API</span></a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="kbd-hint" data-palette-trigger aria-label="Search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Search <kbd>⌘K</kbd>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
+      <a class="cta" href="directory.html">Browse →</a>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer" id="mobile-drawer">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="quickstart.html" class="active">Quickstart</a>
+    <a href="directory.html">Skills</a>
+    <a href="mcp.html">MCP</a>
+    <a href="plugins.html">Plugins</a>
+    <a href="api.html">API</a>
+    <a href="commands.html">Commands</a>
+    <a href="hooks.html">Hooks</a>
+    <a href="models.html">Models</a>
+  </nav>
+</div>
+
+<main class="container install-page">
+  <h1>Quickstart</h1>
+  <p class="lede">Set Claude up the right way the first time. This page covers every surface — claude.ai, the desktop apps, Claude Code CLI, IDE extensions, the API, and mobile — with the install commands, login flow, and the configuration steps a pro user actually does on day one.</p>
+
+  <div class="toc">
+    <h4>Pick your surface</h4>
+    <ul>
+      <li><a href="#choose">0. Which surface should I use?</a></li>
+      <li><a href="#claude-ai">1. claude.ai (web)</a></li>
+      <li><a href="#desktop">2. Desktop apps (macOS / Windows)</a></li>
+      <li><a href="#claude-code">3. Claude Code CLI</a></li>
+      <li><a href="#ides">4. IDE extensions (VS Code, JetBrains)</a></li>
+      <li><a href="#api">5. The Anthropic API</a></li>
+      <li><a href="#mobile">6. Mobile apps (iOS / Android)</a></li>
+      <li><a href="#config">7. First-day configuration</a></li>
+      <li><a href="#claude-md">8. Writing your first CLAUDE.md</a></li>
+      <li><a href="#next">9. Where to go next</a></li>
+    </ul>
+  </div>
+
+  <section id="choose">
+    <h2>0. Which surface should I use?</h2>
+    <table>
+      <thead><tr><th>Surface</th><th>Best for</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td><a href="#claude-ai">claude.ai</a></td><td>Quick conversations, documents, artifacts, light coding</td><td>Free / Pro $20 / Max $100+</td></tr>
+        <tr><td><a href="#desktop">Desktop app</a></td><td>Same as web but with system shortcut + file integration</td><td>Same as claude.ai</td></tr>
+        <tr><td><a href="#claude-code">Claude Code</a></td><td>Real coding work in a terminal — refactors, PRs, multi-file edits</td><td>Free with Pro/Max, or pay-as-you-go via API</td></tr>
+        <tr><td><a href="#ides">IDE extension</a></td><td>Inline edits, completions, and chat in VS Code / JetBrains</td><td>Free with Pro/Max</td></tr>
+        <tr><td><a href="#api">API</a></td><td>Apps, automations, your own tools — pay per token</td><td>Per-token, see <a href="api.html#pricing">pricing</a></td></tr>
+        <tr><td><a href="#mobile">Mobile</a></td><td>On-the-go chat, photo input</td><td>Free / Pro</td></tr>
+      </tbody>
+    </table>
+    <div class="callout info"><strong>Pro tip:</strong> Most pros end up with <em>three</em>: claude.ai for thinking and writing, Claude Code for shipping software, and the API for the bots they build at work. Start with whichever matches today's task — you can add the others later.</div>
+  </section>
+
+  <section id="claude-ai">
+    <h2>1. claude.ai (web)</h2>
+    <ol>
+      <li>Open <a href="https://claude.ai" target="_blank" rel="noopener">claude.ai</a>.</li>
+      <li>Sign up with Google, Apple, or email + password.</li>
+      <li>Click your avatar → <strong>Settings</strong> and turn on:
+        <ul>
+          <li><strong>Artifacts</strong> — live previews for code, diagrams, and small apps.</li>
+          <li><strong>Skills</strong> — the four document skills (PDF, Word, Excel, PowerPoint) are toggled here. Custom skills can be uploaded as folders.</li>
+          <li><strong>Connectors</strong> — Google Drive, Calendar, GitHub, Notion, Figma, and more. Each shows up as MCP tools Claude can call mid-conversation.</li>
+          <li><strong>Memory</strong> (Pro+) — persistent memory across conversations.</li>
+          <li><strong>Custom instructions</strong> — your "always do X" preferences.</li>
+        </ul>
+      </li>
+      <li>Switch the model picker to <strong>Claude Opus 4.7</strong> for hard tasks, <strong>Sonnet 4.6</strong> for daily work, <strong>Haiku 4.5</strong> for speed/cost.</li>
+    </ol>
+    <h3>Free vs Pro vs Max</h3>
+    <table>
+      <thead><tr><th>Feature</th><th>Free</th><th>Pro ($20/mo)</th><th>Max ($100–$200/mo)</th></tr></thead>
+      <tbody>
+        <tr><td>Daily message limit</td><td>Limited</td><td>~5× Free</td><td>5–20× Pro</td></tr>
+        <tr><td>Opus access</td><td>—</td><td>Limited</td><td>Generous</td></tr>
+        <tr><td>Projects</td><td>—</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Custom skills</td><td>—</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Claude Code (subscription)</td><td>—</td><td>Light</td><td>Heavy</td></tr>
+        <tr><td>Computer use / advanced</td><td>—</td><td>—</td><td>Early access</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="desktop">
+    <h2>2. Desktop app (macOS / Windows)</h2>
+    <p>Same account, same skills, same settings as claude.ai — but with a system-wide shortcut and proper file-drag-and-drop.</p>
+    <ol>
+      <li>Download from <a href="https://claude.ai/download" target="_blank" rel="noopener">claude.ai/download</a>.</li>
+      <li>Sign in with the same account as the web app.</li>
+      <li>Set the global shortcut (default <kbd>⌘ ⌥ Space</kbd> on macOS, <kbd>Ctrl Alt Space</kbd> on Windows) so Claude is always one keystroke away.</li>
+      <li>Drag files directly into the chat window — works for PDFs, images, code, anything Claude can read.</li>
+    </ol>
+    <div class="callout"><strong>Why use the desktop app?</strong> The global shortcut alone is worth it. You stop tab-hunting. The "take a screenshot and ask" flow is also smoother — the app captures it and pipes it in.</div>
+  </section>
+
+  <section id="claude-code">
+    <h2>3. Claude Code CLI</h2>
+    <p>This is what pros use for actual coding work. It's an interactive terminal agent that reads your repo, edits files, runs commands, opens PRs.</p>
+
+    <h3>Install</h3>
+<pre><span class="c-tok-com"># npm (cross-platform)</span>
+npm install -g @anthropic-ai/claude-code
+
+<span class="c-tok-com"># or native installer (macOS / Windows / Linux)</span>
+<span class="c-tok-com"># https://docs.claude.com/en/docs/claude-code/install</span></pre>
+
+    <h3>First run</h3>
+<pre><span class="c-tok-com"># in a project directory</span>
+cd ~/code/my-project
+claude</pre>
+    <p>On first run it prompts you to authenticate. Two paths:</p>
+    <ul>
+      <li><strong>Subscription</strong> — log in with your claude.ai Pro or Max account. Usage counts against your subscription limits.</li>
+      <li><strong>API key</strong> — pay per token, generated at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>. Best for heavy users or team deployments.</li>
+    </ul>
+
+    <h3>Bootstrap the project for Claude</h3>
+<pre><span class="c-tok-com"># inside Claude Code, on day one</span>
+/init</pre>
+    <p>This scans the repo and writes a <code>CLAUDE.md</code> file with architecture summary, commands, and conventions. Every future session reads this on startup. See <a href="#claude-md">section 8</a>.</p>
+
+    <h3>The five things to configure right away</h3>
+    <ol>
+      <li><strong>Permissions</strong> — <code>~/.claude/settings.json</code> → which Bash commands auto-allow. Reduces interruptions. See the <a href="#config">config section</a>.</li>
+      <li><strong>Skills</strong> — drop folders into <code>~/.claude/skills/</code>. Start with the <a href="directory.html">official document and Anthropic skills</a>.</li>
+      <li><strong>MCP servers</strong> — connect GitHub, Postgres, Linear, etc. See the <a href="mcp.html">MCP guide</a>.</li>
+      <li><strong>Slash commands</strong> — drop reusable prompt templates into <code>~/.claude/commands/</code>. See <a href="commands.html">commands</a>.</li>
+      <li><strong>Hooks</strong> — automate things on tool use, stop, session start. See <a href="hooks.html">hooks</a>.</li>
+    </ol>
+
+    <h3>Day-to-day flow</h3>
+<pre><span class="c-tok-com"># open in your project</span>
+claude
+
+<span class="c-tok-com"># ask in plain English; it'll plan, read, edit, run tests</span>
+&gt; Add a /healthz endpoint with a JSON body that includes the git SHA.
+
+<span class="c-tok-com"># useful built-ins</span>
+/init             <span class="c-tok-com"># write or update CLAUDE.md</span>
+/review           <span class="c-tok-com"># review the current branch's diff</span>
+/security-review  <span class="c-tok-com"># OWASP-style sweep of the diff</span>
+/skills list      <span class="c-tok-com"># see what skills are loaded</span>
+/mcp list         <span class="c-tok-com"># see connected MCP servers</span>
+/help             <span class="c-tok-com"># everything else</span></pre>
+
+    <h3>Tips that turn beginners into pros</h3>
+    <ul>
+      <li><strong>Write a <code>CLAUDE.md</code> early.</strong> The 10 minutes you spend up front saves hours.</li>
+      <li><strong>Use <code>/init</code> in every new repo</strong> so future sessions have context.</li>
+      <li><strong>Trust the agent on small tasks, supervise on big ones.</strong> The <code>/plan</code> mode is your friend for anything risky.</li>
+      <li><strong>Skill > prompt.</strong> If you find yourself re-pasting the same instructions, make it a skill or slash command.</li>
+      <li><strong>Permissions are friction reducers.</strong> Allow safe read-only Bash commands once, never again.</li>
+    </ul>
+  </section>
+
+  <section id="ides">
+    <h2>4. IDE extensions</h2>
+    <p>Claude Code ships an IDE extension that gives you the same agent inline. Available for VS Code and the full JetBrains family (IntelliJ, PyCharm, GoLand, WebStorm, Rider).</p>
+
+    <h3>VS Code</h3>
+    <ol>
+      <li>Extensions panel → search "Claude Code" → install.</li>
+      <li>Open the command palette (<kbd>⌘ ⇧ P</kbd>) and run <em>Claude: Sign In</em>.</li>
+      <li>Choose subscription or API key.</li>
+      <li>Open the Claude side panel (default shortcut <kbd>⌘ ⇧ C</kbd>) to chat with your project.</li>
+    </ol>
+
+    <h3>JetBrains</h3>
+    <ol>
+      <li>Settings → Plugins → Marketplace → search "Claude Code" → install → restart IDE.</li>
+      <li>Sign in via the Claude side tool window.</li>
+      <li>Right-click in the editor for "Ask Claude about this" / "Refactor with Claude".</li>
+    </ol>
+
+    <div class="callout info"><strong>Inline edits</strong> — select code, press <kbd>⌘ I</kbd> (VS Code) or <kbd>Alt I</kbd> (JetBrains), describe the change. Claude rewrites the selection in place with a diff preview. Faster than the chat panel for small surgical edits.</div>
+  </section>
+
+  <section id="api">
+    <h2>5. The Anthropic API</h2>
+    <p>For automations, your own apps, and anything that needs to run unattended. Pay-per-token via <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>.</p>
+
+    <h3>Get an API key</h3>
+    <ol>
+      <li>Go to <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a> → sign up or sign in.</li>
+      <li>Settings → API Keys → <em>Create Key</em>.</li>
+      <li>Add billing under Settings → Plans &amp; Billing. Add a usage limit so a runaway script doesn't drain your card.</li>
+      <li>Copy the key to a password manager. Never commit it to git.</li>
+    </ol>
+
+    <h3>First call (Python)</h3>
+<pre>pip install anthropic
+<span class="c-tok-com"># put your key in env</span>
+export ANTHROPIC_API_KEY=sk-ant-...</pre>
+
+<pre><span class="c-tok-key">from</span> anthropic <span class="c-tok-key">import</span> Anthropic
+client = Anthropic()
+
+resp = client.messages.create(
+    model=<span class="c-tok-str">"claude-opus-4-7"</span>,
+    max_tokens=<span class="c-tok-str">1024</span>,
+    messages=[{<span class="c-tok-str">"role"</span>: <span class="c-tok-str">"user"</span>, <span class="c-tok-str">"content"</span>: <span class="c-tok-str">"Say hi in haiku."</span>}],
+)
+<span class="c-tok-key">print</span>(resp.content[<span class="c-tok-str">0</span>].text)</pre>
+
+    <h3>First call (Node)</h3>
+<pre>npm install @anthropic-ai/sdk</pre>
+
+<pre><span class="c-tok-key">import</span> Anthropic <span class="c-tok-key">from</span> <span class="c-tok-str">"@anthropic-ai/sdk"</span>;
+<span class="c-tok-key">const</span> client = <span class="c-tok-key">new</span> Anthropic();
+
+<span class="c-tok-key">const</span> resp = <span class="c-tok-key">await</span> client.messages.create({
+  model: <span class="c-tok-str">"claude-opus-4-7"</span>,
+  max_tokens: <span class="c-tok-str">1024</span>,
+  messages: [{ role: <span class="c-tok-str">"user"</span>, content: <span class="c-tok-str">"Say hi in haiku."</span> }],
+});
+console.log(resp.content[<span class="c-tok-str">0</span>].text);</pre>
+
+    <p>That's the smallest possible call. For everything else — prompt caching, extended thinking, tool use, batch, vision, files, citations — see the full <a href="api.html">API guide</a>.</p>
+  </section>
+
+  <section id="mobile">
+    <h2>6. Mobile apps</h2>
+    <p>iOS and Android apps mirror claude.ai with one big addition: <strong>voice mode</strong>. Hold the mic icon, talk, and Claude speaks back. Camera input also works — point at a problem, get an answer.</p>
+    <ul>
+      <li><a href="https://apps.apple.com/app/claude/id6473753684" target="_blank" rel="noopener">iOS — App Store</a></li>
+      <li><a href="https://play.google.com/store/apps/details?id=com.anthropic.claude" target="_blank" rel="noopener">Android — Play Store</a></li>
+    </ul>
+  </section>
+
+  <section id="config">
+    <h2>7. First-day configuration (Claude Code)</h2>
+    <p>Open <code>~/.claude/settings.json</code> and add the things every pro user adds in their first week:</p>
+<pre>{
+  <span class="c-tok-str">"permissions"</span>: {
+    <span class="c-tok-str">"allow"</span>: [
+      <span class="c-tok-str">"Bash(git status)"</span>,
+      <span class="c-tok-str">"Bash(git diff:*)"</span>,
+      <span class="c-tok-str">"Bash(git log:*)"</span>,
+      <span class="c-tok-str">"Bash(npm test)"</span>,
+      <span class="c-tok-str">"Bash(npm run lint)"</span>,
+      <span class="c-tok-str">"Bash(pytest:*)"</span>,
+      <span class="c-tok-str">"Bash(go test:*)"</span>,
+      <span class="c-tok-str">"Read(/Users/me/code/**)"</span>
+    ],
+    <span class="c-tok-str">"deny"</span>: [
+      <span class="c-tok-str">"Bash(rm -rf:*)"</span>,
+      <span class="c-tok-str">"Bash(git push --force:*)"</span>
+    ]
+  },
+  <span class="c-tok-str">"env"</span>: {
+    <span class="c-tok-str">"EDITOR"</span>: <span class="c-tok-str">"code --wait"</span>
+  },
+  <span class="c-tok-str">"hooks"</span>: {
+    <span class="c-tok-str">"PostToolUse"</span>: [
+      {
+        <span class="c-tok-str">"matcher"</span>: <span class="c-tok-str">"Edit|Write"</span>,
+        <span class="c-tok-str">"hooks"</span>: [{ <span class="c-tok-str">"type"</span>: <span class="c-tok-str">"command"</span>, <span class="c-tok-str">"command"</span>: <span class="c-tok-str">"prettier --write \"$CLAUDE_FILE\""</span> }]
+      }
+    ]
+  }
+}</pre>
+    <p>What this does:</p>
+    <ul>
+      <li><strong>Auto-allows</strong> safe read-only Bash calls — no more permission prompts mid-flow.</li>
+      <li><strong>Hard-denies</strong> destructive commands so a mistake stays a prompt, not an apocalypse.</li>
+      <li><strong>Sets <code>EDITOR</code></strong> so Claude opens the right editor for interactive prompts.</li>
+      <li><strong>Auto-formats</strong> any file Claude edits with Prettier (replace with your formatter — black, gofmt, rustfmt).</li>
+    </ul>
+    <p>See <a href="hooks.html">Hooks</a> for the full event list (PreToolUse, PostToolUse, Stop, Notification, UserPromptSubmit, SessionStart, SubagentStop) and example automations.</p>
+  </section>
+
+  <section id="claude-md">
+    <h2>8. Writing your first CLAUDE.md</h2>
+    <p>Run <code>/init</code> in a fresh project and Claude writes one for you. Then edit it — the magic happens when <em>you</em> add the things only you know.</p>
+
+    <h3>What goes in</h3>
+    <ul>
+      <li><strong>Architecture (1 paragraph)</strong> — the shape of the codebase.</li>
+      <li><strong>Commands</strong> — how to install, run, test, lint, deploy.</li>
+      <li><strong>Conventions</strong> — naming, error handling, where tests live, lint rules.</li>
+      <li><strong>Gotchas</strong> — flaky tests, side-effecting files, deprecated paths to avoid.</li>
+      <li><strong>"Always do X" rules</strong> — e.g., "always run <code>npm run typecheck</code> after edits".</li>
+    </ul>
+
+    <h3>A real-world template</h3>
+<pre><span class="c-tok-h"># CLAUDE.md</span>
+
+<span class="c-tok-h">## Project</span>
+
+Server-rendered Next.js app + Postgres. ~30k LOC TypeScript.
+Deploys to Vercel on merge to <span class="c-tok-str">main</span>.
+
+<span class="c-tok-h">## Run / test / lint</span>
+
+- Install:    <span class="c-tok-str">pnpm install</span>
+- Dev:        <span class="c-tok-str">pnpm dev</span>             (port 3000)
+- Typecheck:  <span class="c-tok-str">pnpm tsc --noEmit</span>
+- Test:       <span class="c-tok-str">pnpm test</span>            (Vitest)
+- Lint:       <span class="c-tok-str">pnpm lint</span>            (Biome)
+- Migrations: <span class="c-tok-str">pnpm db migrate</span>
+
+<span class="c-tok-h">## Conventions</span>
+
+- Routes in <span class="c-tok-link">app/</span>, server actions in <span class="c-tok-link">app/_actions/</span>.
+- Components colocated; shared in <span class="c-tok-link">components/</span>.
+- DB access via <span class="c-tok-link">db/queries/</span>; never inline.
+- Test naming: <span class="c-tok-str">*.test.ts</span> next to the file.
+
+<span class="c-tok-h">## Always</span>
+
+- Run <span class="c-tok-str">pnpm tsc --noEmit</span> after any edit.
+- Commit messages: Conventional (feat/fix/refactor).
+- New env vars: also add to <span class="c-tok-link">.env.example</span>.
+
+<span class="c-tok-h">## Gotchas</span>
+
+- <span class="c-tok-link">lib/legacy/</span> is deprecated; do not extend.
+- <span class="c-tok-link">tests/e2e/</span> is flaky on CI; if it fails twice, rerun.</pre>
+
+    <div class="callout"><strong>Where to put it.</strong> Project-level: <code>./CLAUDE.md</code> (commit to git). User-level: <code>~/.claude/CLAUDE.md</code> (your preferences across all projects). Both are loaded.</div>
+  </section>
+
+  <section id="next">
+    <h2>9. Where to go next</h2>
+    <ul>
+      <li><a href="directory.html">Skills directory</a> — 101 skills to install today.</li>
+      <li><a href="mcp.html">MCP guide</a> — connect external tools (GitHub, Postgres, Linear, Figma, Slack).</li>
+      <li><a href="plugins.html">Plugins</a> — the marketplace and what's worth installing.</li>
+      <li><a href="commands.html">Slash commands</a> — built-ins + how to write your own.</li>
+      <li><a href="hooks.html">Hooks</a> — automate format/test/notify around tool use.</li>
+      <li><a href="api.html">API guide</a> — prompt caching, extended thinking, tool use, batch.</li>
+      <li><a href="models.html">Models</a> — Opus 4.7 vs Sonnet 4.6 vs Haiku 4.5 — when to use which.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <strong>Claude Pro Guide</strong>
+      </div>
+      <p>The unofficial pro reference for working with Claude — skills, MCP, plugins, hooks, the API, and the 4.x models, covered end to end.</p>
+      <div class="footer-social">
+        <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener" aria-label="anthropics/skills on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.7-5.5 6 .5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        </a>
+        <a href="https://docs.claude.com" target="_blank" rel="noopener" aria-label="Claude documentation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        </a>
+        <a href="https://console.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic API console">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </a>
+        <a href="https://www.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="directory.html">Skills directory</a>
+      <a href="mcp.html">MCP</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="api.html">API</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Reference</h4>
+      <a href="commands.html">Slash commands</a>
+      <a href="hooks.html">Hooks</a>
+      <a href="models.html">Models</a>
+      <a href="guide.html">How skills work</a>
+      <a href="create.html">Build a skill</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com<span class="ext">↗</span></a>
+      <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">anthropics/skills<span class="ext">↗</span></a>
+      <a href="https://console.anthropic.com" target="_blank" rel="noopener">API console<span class="ext">↗</span></a>
+      <a href="https://www.anthropic.com" target="_blank" rel="noopener">Anthropic<span class="ext">↗</span></a>
+      <a href="https://github.com/topics/claude-skills" target="_blank" rel="noopener">Community skills<span class="ext">↗</span></a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <div class="footer-meta">
+      <span>© 2026 Claude Pro Guide</span>
+      <span class="sep"></span>
+      <span>Unofficial community resource</span>
+      <span class="sep"></span>
+      <span>Not affiliated with Anthropic</span>
+    </div>
+    <a class="footer-back-top" href="#top">Back to top
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </a>
+  </div>
+</footer>
+
+<button class="fab" id="fab" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-label="Search skills">
+  <div class="palette">
+    <div class="palette-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <label for="palette-input" class="sr-only">Search skills</label>
+      <input id="palette-input" type="text" placeholder="Search 101 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
+      <span class="esc">esc</span>
+    </div>
+    <div class="palette-results" id="palette-results"></div>
+  </div>
+</div>
+
+<script src="skills-data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

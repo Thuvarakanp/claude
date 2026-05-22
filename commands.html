@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Slash Commands — Claude Pro Guide</title>
+<meta name="description" content="Every built-in slash command in Claude Code, how to write your own, and a copy-paste-ready library of commands every pro uses." />
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div class="scroll-progress"></div>
+
+<header class="topbar">
+  <div class="container nav">
+    <a href="index.html" class="brand"><span class="brand-text">Claude Pro Guide</span></a>
+    <nav class="nav-links">
+      <a href="quickstart.html"><span>Quickstart</span></a>
+      <a href="directory.html"><span>Skills</span></a>
+      <a href="mcp.html"><span>MCP</span></a>
+      <a href="plugins.html"><span>Plugins</span></a>
+      <a href="api.html"><span>API</span></a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="kbd-hint" data-palette-trigger aria-label="Search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Search <kbd>⌘K</kbd>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
+      <a class="cta" href="quickstart.html">Get Started →</a>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer" id="mobile-drawer">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="directory.html">Skills</a>
+    <a href="mcp.html">MCP</a>
+    <a href="plugins.html">Plugins</a>
+    <a href="api.html">API</a>
+    <a href="commands.html" class="active">Commands</a>
+    <a href="hooks.html">Hooks</a>
+    <a href="models.html">Models</a>
+  </nav>
+</div>
+
+<main class="container install-page">
+  <h1>Slash Commands</h1>
+  <p class="lede">Slash commands are reusable prompt shortcuts you type with a leading <code>/</code>. Claude Code ships ~25 built-ins for the common workflows. You can write your own as one-file markdown templates dropped into <code>~/.claude/commands/</code>. This page lists every built-in, shows the file format, and gives you a starter library worth installing immediately.</p>
+
+  <div class="toc">
+    <h4>On this page</h4>
+    <ul>
+      <li><a href="#built-ins">1. Built-in commands</a></li>
+      <li><a href="#workflow">2. Workflow built-ins</a></li>
+      <li><a href="#meta">3. Meta / management</a></li>
+      <li><a href="#format">4. Custom command file format</a></li>
+      <li><a href="#args">5. Arguments &amp; templating</a></li>
+      <li><a href="#scopes">6. User vs project scope</a></li>
+      <li><a href="#library">7. Starter library (steal these)</a></li>
+      <li><a href="#tips">8. Pro tips</a></li>
+    </ul>
+  </div>
+
+  <section id="built-ins">
+    <h2>1. Built-in commands</h2>
+    <p>Type <code>/help</code> in Claude Code to see the live list. The headliners:</p>
+    <table>
+      <thead><tr><th>Command</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>/init</code></td><td>Scan the repo and write a <code>CLAUDE.md</code>. Run on day one in any new project.</td></tr>
+        <tr><td><code>/review</code></td><td>Categorized review of the current branch's diff (or <code>/review 123</code> for a PR).</td></tr>
+        <tr><td><code>/security-review</code></td><td>OWASP-style sweep of the diff — injection, auth, secrets, unsafe parsers.</td></tr>
+        <tr><td><code>/verify</code></td><td>Actually run the app and exercise the change, not just <code>npm test</code>.</td></tr>
+        <tr><td><code>/simplify</code></td><td>Look for duplication, dead code, premature abstraction in the diff, fix what's worth fixing.</td></tr>
+        <tr><td><code>/run</code></td><td>Launch the project's app (CLI / server / browser) and confirm a change works.</td></tr>
+        <tr><td><code>/ultrareview</code></td><td>Multi-agent cloud review (correctness, security, design, perf, tests). User-triggered, billed.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="workflow">
+    <h2>2. Workflow built-ins</h2>
+    <table>
+      <thead><tr><th>Command</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>/schedule</code></td><td>Create / list / run cron-style remote agents. "Check open PRs every morning at 9am."</td></tr>
+        <tr><td><code>/loop &lt;interval&gt; &lt;cmd&gt;</code></td><td>Repeat a command on an interval inside the current session. Omit interval to let Claude self-pace.</td></tr>
+        <tr><td><code>/babysit-prs</code></td><td>Watch your open PRs, post nudges, draft replies. Pairs with <code>/loop 5m</code>.</td></tr>
+        <tr><td><code>/standup</code></td><td>Draft a status update from recent git activity + Linear tickets.</td></tr>
+        <tr><td><code>/remember &lt;fact&gt;</code></td><td>Add to your memory file. Use sparingly — better to update CLAUDE.md.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="meta">
+    <h2>3. Meta / management</h2>
+    <table>
+      <thead><tr><th>Command</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>/help</code></td><td>Live list of every command + skill currently loaded.</td></tr>
+        <tr><td><code>/skills list</code></td><td>Show loaded skills with their descriptions.</td></tr>
+        <tr><td><code>/mcp list</code></td><td>Show connected MCP servers + tool counts.</td></tr>
+        <tr><td><code>/plugin list</code></td><td>Installed plugins.</td></tr>
+        <tr><td><code>/config</code></td><td>Open settings.json in <code>$EDITOR</code>.</td></tr>
+        <tr><td><code>/clear</code></td><td>Drop conversation history (keep the session).</td></tr>
+        <tr><td><code>/compact</code></td><td>Manually compact the conversation (the system also does it automatically when context fills).</td></tr>
+        <tr><td><code>/cost</code></td><td>Show token usage and rough cost for the current session.</td></tr>
+        <tr><td><code>/login</code> / <code>/logout</code></td><td>Manage authentication.</td></tr>
+        <tr><td><code>/model</code></td><td>Switch the active model mid-session.</td></tr>
+        <tr><td><code>/fast</code></td><td>Toggle fast-mode on Opus 4.6+.</td></tr>
+        <tr><td><code>/feedback</code></td><td>Report an issue to Anthropic.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="format">
+    <h2>4. Custom command file format</h2>
+    <p>A custom command is a single markdown file with optional YAML frontmatter. Filename = command name.</p>
+<pre><span class="c-tok-com"># ~/.claude/commands/standup.md</span>
+<span class="c-tok-com">---</span>
+<span class="c-tok-key">description</span>: Draft a daily standup from recent git activity.
+<span class="c-tok-key">allowed-tools</span>:
+  - Bash
+  - Read
+<span class="c-tok-com">---</span>
+
+Run <span class="c-tok-str">git log --since=yesterday --author=$(git config user.email)</span>
+and turn each commit into a one-line bullet.
+
+Group by repo if multiple. Add a "Today" section
+asking me what I'll work on. Keep under 8 bullets total.</pre>
+    <p>That's it. Save the file, restart the session, type <code>/standup</code>.</p>
+  </section>
+
+  <section id="args">
+    <h2>5. Arguments &amp; templating</h2>
+    <p>Pass arguments after the command. They're available as <code>$ARGUMENTS</code> in the body:</p>
+<pre><span class="c-tok-com"># ~/.claude/commands/explain.md</span>
+<span class="c-tok-com">---</span>
+<span class="c-tok-key">description</span>: Explain a file or symbol like I'm a smart-but-new engineer.
+<span class="c-tok-com">---</span>
+
+Explain the following in 5 short paragraphs:
+
+<span class="c-tok-str">$ARGUMENTS</span>
+
+Cover: what it does, how it fits the codebase, the invariants
+it enforces, common ways callers misuse it, and any gotchas.</pre>
+
+<pre><span class="c-tok-com"># usage</span>
+/explain src/auth/sessions.ts
+/explain "the resolveTunnel function"</pre>
+
+    <p>You can also reference files with <code>@</code>-mentions inline — Claude will read them when the command runs.</p>
+  </section>
+
+  <section id="scopes">
+    <h2>6. User vs project scope</h2>
+    <table>
+      <thead><tr><th>Scope</th><th>Path</th><th>Best for</th></tr></thead>
+      <tbody>
+        <tr><td>User</td><td><code>~/.claude/commands/*.md</code></td><td>Your personal toolbox (<code>/standup</code>, <code>/explain</code>).</td></tr>
+        <tr><td>Project</td><td><code>.claude/commands/*.md</code> (in the repo)</td><td>Team-shared shortcuts (<code>/deploy</code>, <code>/runbook-on-call</code>).</td></tr>
+      </tbody>
+    </table>
+    <p>If the same name exists in both, project scope wins.</p>
+  </section>
+
+  <section id="library">
+    <h2>7. Starter library (steal these)</h2>
+
+    <h3><code>/commit</code> — Conventional-commit message from staged diff</h3>
+<pre><span class="c-tok-com">---</span>
+<span class="c-tok-key">description</span>: Draft a conventional-commit message from the staged diff.
+<span class="c-tok-key">allowed-tools</span>: [Bash]
+<span class="c-tok-com">---</span>
+
+Read <span class="c-tok-str">git diff --cached</span> and the last 10 commit messages
+(<span class="c-tok-str">git log -10 --pretty=%s</span>). Classify the change into
+feat/fix/refactor/docs/test/chore/perf/style/build/ci.
+Pick a scope from the changed paths. Write a subject &lt;60 chars,
+imperative mood, no trailing period.
+
+Output ONLY the message in a code block. Do NOT run git commit.</pre>
+
+    <h3><code>/explain-error</code> — Decode a stack trace</h3>
+<pre><span class="c-tok-com">---</span>
+<span class="c-tok-key">description</span>: Explain an error/stack trace and propose the fix.
+<span class="c-tok-com">---</span>
+
+Given this error:
+
+<span class="c-tok-str">$ARGUMENTS</span>
+
+1. Identify the root frame.
+2. Open the relevant file and read the surrounding context.
+3. Explain in plain English what triggered it.
+4. Propose the smallest diff that fixes it.</pre>
+
+    <h3><code>/runbook</code> — Pull up an on-call runbook</h3>
+<pre><span class="c-tok-com">---</span>
+<span class="c-tok-key">description</span>: Open the team runbook for the given service / alert.
+<span class="c-tok-key">allowed-tools</span>: [Read, Grep]
+<span class="c-tok-com">---</span>
+
+Search <span class="c-tok-link">docs/runbooks/</span> for a runbook matching:
+
+<span class="c-tok-str">$ARGUMENTS</span>
+
+If found, paste the "First 5 minutes" and "Common causes" sections.
+If not, ask which service the alert is for.</pre>
+
+    <h3><code>/why-is-ci-failing</code></h3>
+<pre><span class="c-tok-com">---</span>
+<span class="c-tok-key">description</span>: Diagnose the latest failing CI run on the current branch.
+<span class="c-tok-key">allowed-tools</span>: [Bash]
+<span class="c-tok-com">---</span>
+
+Run <span class="c-tok-str">gh run list --branch $(git branch --show-current) -L 1 --json status,conclusion,databaseId</span>.
+If conclusion is failure, fetch logs with <span class="c-tok-str">gh run view --log-failed</span>.
+Summarize the actual error (skip framework noise) and propose the fix.</pre>
+
+    <h3><code>/ship</code> — End-of-day ship checklist</h3>
+<pre><span class="c-tok-com">---</span>
+<span class="c-tok-key">description</span>: Pre-merge sanity sweep.
+<span class="c-tok-key">allowed-tools</span>: [Bash, Read]
+<span class="c-tok-com">---</span>
+
+Verify before I open a PR:
+
+1. <span class="c-tok-str">git status</span> is clean except intended files.
+2. Tests pass: run the project's test command.
+3. Typecheck passes.
+4. No console.log / debugger / TODO-for-me-later in the diff.
+5. CHANGELOG.md updated if there's a user-visible change.
+6. New env vars also added to .env.example.
+
+Report the punch list — done vs missing.</pre>
+  </section>
+
+  <section id="tips">
+    <h2>8. Pro tips</h2>
+    <ul>
+      <li><strong>Name commands like verbs</strong> — <code>/ship</code>, <code>/review</code>, <code>/explain</code>. Easier to recall.</li>
+      <li><strong>Keep them short</strong> — a command should fit on one screen. If it grows, it's a skill in disguise.</li>
+      <li><strong>Scope <code>allowed-tools</code></strong> when the command is destructive. Reduces accidental writes.</li>
+      <li><strong>Project commands get committed</strong> — your future teammate gets the same shortcuts.</li>
+      <li><strong>Layer with skills</strong>: a slash command triggers a workflow, the workflow uses skills for capabilities. <code>/ship</code> may invoke <code>commit-classifier</code> + <code>security-review</code> implicitly.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <strong>Claude Pro Guide</strong>
+      </div>
+      <p>The unofficial pro reference for working with Claude — skills, MCP, plugins, hooks, the API, and the 4.x models, covered end to end.</p>
+      <div class="footer-social">
+        <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener" aria-label="anthropics/skills on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.7-5.5 6 .5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        </a>
+        <a href="https://docs.claude.com" target="_blank" rel="noopener" aria-label="Claude documentation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        </a>
+        <a href="https://console.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic API console">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </a>
+        <a href="https://www.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="directory.html">Skills directory</a>
+      <a href="mcp.html">MCP</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="api.html">API</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Reference</h4>
+      <a href="commands.html">Slash commands</a>
+      <a href="hooks.html">Hooks</a>
+      <a href="models.html">Models</a>
+      <a href="guide.html">How skills work</a>
+      <a href="create.html">Build a skill</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com<span class="ext">↗</span></a>
+      <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">anthropics/skills<span class="ext">↗</span></a>
+      <a href="https://console.anthropic.com" target="_blank" rel="noopener">API console<span class="ext">↗</span></a>
+      <a href="https://www.anthropic.com" target="_blank" rel="noopener">Anthropic<span class="ext">↗</span></a>
+      <a href="https://github.com/topics/claude-skills" target="_blank" rel="noopener">Community skills<span class="ext">↗</span></a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <div class="footer-meta">
+      <span>© 2026 Claude Pro Guide</span>
+      <span class="sep"></span>
+      <span>Unofficial community resource</span>
+      <span class="sep"></span>
+      <span>Not affiliated with Anthropic</span>
+    </div>
+    <a class="footer-back-top" href="#top">Back to top
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </a>
+  </div>
+</footer>
+
+<button class="fab" id="fab" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-label="Search">
+  <div class="palette">
+    <div class="palette-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <label for="palette-input" class="sr-only">Search skills</label>
+      <input id="palette-input" type="text" placeholder="Search 101 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
+      <span class="esc">esc</span>
+    </div>
+    <div class="palette-results" id="palette-results"></div>
+  </div>
+</div>
+
+<script src="skills-data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

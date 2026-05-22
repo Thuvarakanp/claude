@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Build a Skill — Claude Skills Directory</title>
-<meta name="description" content="Step-by-step guide to writing your first Claude Agent Skill — from naming, frontmatter, and triggers to publishing and sharing." />
+<title>Build a Skill — Claude Pro Guide</title>
+<meta name="description" content="Step-by-step guide to writing your first Claude Agent Skill — from naming and frontmatter through publishing." />
 <link rel="stylesheet" href="styles.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,18 +17,17 @@
 <header class="topbar">
   <div class="container nav">
     <a href="index.html" class="brand">
-      <!-- <span class="brand-mark">C</span> -->
-      <span class="brand-text">Skills Directory</span>
+      <span class="brand-text">Claude Pro Guide</span>
     </a>
     <nav class="nav-links">
-      <a href="index.html"><span>Home</span></a>
-      <a href="directory.html"><span>Directory</span></a>
-      <a href="install.html"><span>Install</span></a>
-      <a href="guide.html"><span>Guide</span></a>
-      <a href="create.html" class="active"><span>Build a Skill</span></a>
+      <a href="quickstart.html"><span>Quickstart</span></a>
+      <a href="directory.html" class="active"><span>Skills</span></a>
+      <a href="mcp.html"><span>MCP</span></a>
+      <a href="plugins.html"><span>Plugins</span></a>
+      <a href="api.html"><span>API</span></a>
     </nav>
     <div style="display:flex;align-items:center;gap:10px;">
-      <button class="kbd-hint" data-palette-trigger aria-label="Search skills">
+      <button class="kbd-hint" data-palette-trigger aria-label="Search">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         Search <kbd>⌘K</kbd>
       </button>
@@ -41,22 +40,18 @@
 <div class="mobile-drawer" id="mobile-drawer">
   <nav>
     <a href="index.html">Home</a>
-    <a href="directory.html">Directory</a>
-    <a href="install.html">Install</a>
-    <a href="guide.html">Guide</a>
-    <a href="create.html" class="active">Build a Skill</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="directory.html" class="active">Skills</a>
+    <a href="mcp.html">MCP</a>
+    <a href="plugins.html">Plugins</a>
+    <a href="api.html">API</a>
+    <a href="commands.html">Commands</a>
+    <a href="hooks.html">Hooks</a>
+    <a href="models.html">Models</a>
   </nav>
 </div>
 
 <main class="container install-page">
-  <div class="frame frame-page" data-frame-name="Page / Build a Skill" id="frame-create-page">
-    <div class="frame-label">
-      <span class="f-chev">▸</span>
-      <span class="f-icon"></span>
-      <span class="f-name">Build a Skill</span>
-      <span class="f-meta">/ Page · Tutorial</span>
-    </div>
-    <div class="frame-handles"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
   <h1>Build your first skill</h1>
   <p class="lede">A working skill, end-to-end, in under ten minutes. We'll build <code>commit-classifier</code> — a skill that reads <code>git diff --cached</code> and writes a conventional-commit message.</p>
 
@@ -77,12 +72,12 @@
 
   <section id="step-1">
     <h2>Step 1 — Decide what the skill does</h2>
-    <p>Before writing any code, answer four questions in one sentence each:</p>
+    <p>Before any code, answer four questions in one sentence each:</p>
     <ul>
-      <li><strong>Trigger:</strong> When should Claude invoke this skill? <em>("When the user asks Claude to write a commit message after staging changes.")</em></li>
-      <li><strong>Inputs:</strong> What does it need? <em>("The output of <code>git diff --cached</code> and the project's prior commit style.")</em></li>
-      <li><strong>Output:</strong> What does it produce? <em>("A conventional-commit message printed to the chat, optionally written via <code>git commit -m</code>.")</em></li>
-      <li><strong>Tools:</strong> What permissions does it need? <em>("<code>Bash</code> to run git, that's it.")</em></li>
+      <li><strong>Trigger:</strong> When should Claude invoke this skill?</li>
+      <li><strong>Inputs:</strong> What does it need?</li>
+      <li><strong>Output:</strong> What does it produce?</li>
+      <li><strong>Tools:</strong> What permissions does it need?</li>
     </ul>
     <p>If you can't answer all four in one sentence, the skill is doing too much. Split it.</p>
   </section>
@@ -115,69 +110,29 @@ cd ~/.claude/skills/commit-classifier</pre>
 
 When this skill activates:
 
-1. Run <span class="c-tok-link">scripts/inspect.sh</span> to gather:
-   - The staged diff (<span class="c-tok-str">git diff --cached</span>)
-   - The last 10 commit messages (for project style)
-   - The list of staged paths (for scope inference)
-
-2. Classify the change into one of:
-   <span class="c-tok-str">feat | fix | refactor | docs | test | chore | perf | style | build | ci</span>
-
-   Use this rubric:
-   - <span class="c-tok-str">feat</span>: net-new user-facing capability
-   - <span class="c-tok-str">fix</span>: corrects a bug or unintended behavior
-   - <span class="c-tok-str">refactor</span>: internal-only restructuring, no behavior change
-   - <span class="c-tok-str">docs</span>: only .md / comment / README changes
-   - <span class="c-tok-str">test</span>: only test-file changes
-   - <span class="c-tok-str">chore</span>: deps, lockfiles, version bumps
-
-3. Pick a scope from the changed paths. Prefer the deepest directory
-   shared by &gt;50% of changed files (e.g., <span class="c-tok-str">auth</span>, <span class="c-tok-str">api/users</span>).
-
-4. Write a subject line:
-   - Imperative mood ("add", not "added")
-   - Under 60 characters
-   - No trailing period
-   - Format: <span class="c-tok-str">&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;</span>
-
-5. Print the message in a code block. Do NOT run <span class="c-tok-str">git commit</span>
-   yourself unless the user explicitly asks you to.
-
-<span class="c-tok-h">## Examples</span>
-
-Good:
-- <span class="c-tok-str">feat(auth): add WebAuthn passkey enrollment</span>
-- <span class="c-tok-str">fix(api/users): handle null email on social signup</span>
-- <span class="c-tok-str">refactor(db): collapse user + session loaders</span>
-
-Bad (and why):
-- <span class="c-tok-str">"Update files"</span> — no type, no scope, no signal
-- <span class="c-tok-str">"feat: lots of changes"</span> — vague subject
-- <span class="c-tok-str">"feat(auth): added new login flow."</span> — past tense, trailing period</pre>
+1. Run <span class="c-tok-link">scripts/inspect.sh</span> to gather staged diff, paths, last 10 commits.
+2. Classify the change into: feat / fix / refactor / docs / test / chore / perf / style / build / ci.
+3. Pick a scope from changed paths (deepest dir shared by &gt;50% of files).
+4. Write a subject line: imperative mood, &lt;60 chars, no trailing period.
+   Format: <span class="c-tok-str">&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;</span>
+5. Print the message in a code block. Do NOT run <span class="c-tok-str">git commit</span>.</pre>
   </section>
 
   <section id="step-4">
     <h2>Step 4 — Add a helper script</h2>
-    <p>Anything deterministic should live in a script, not in the markdown. It saves tokens, runs the same every time, and is testable on its own.</p>
+    <p>Anything deterministic should live in a script — fewer tokens, more reliable, testable on its own.</p>
 <pre><span class="c-tok-com"># scripts/inspect.sh</span>
 <span class="c-tok-com">#!/usr/bin/env bash</span>
 <span class="c-tok-key">set</span> -euo pipefail
-
 <span class="c-tok-com">echo "=== Staged paths ==="</span>
 git diff --cached --name-only
-
-<span class="c-tok-com">echo</span>
 <span class="c-tok-com">echo "=== Staged diff ==="</span>
-git diff --cached --stat
 git diff --cached
-
-<span class="c-tok-com">echo</span>
-<span class="c-tok-com">echo "=== Recent commit messages ==="</span>
+<span class="c-tok-com">echo "=== Recent commits ==="</span>
 git log -10 --pretty=format:<span class="c-tok-str">"%s"</span></pre>
-
 <pre>chmod +x scripts/inspect.sh</pre>
     <div class="callout info">
-      <strong>Why a script?</strong> A 30-line shell file is faster, cheaper, and more reliable than getting the model to assemble three git invocations correctly every time. Skills get better when you offload determinism to code.
+      <strong>Why a script?</strong> 30 lines of shell is faster, cheaper, and more reliable than the model assembling git invocations every time.
     </div>
   </section>
 
@@ -189,33 +144,31 @@ git log -10 --pretty=format:<span class="c-tok-str">"%s"</span></pre>
       <li><em>"What should I name this commit?"</em> → should activate</li>
       <li><em>"Help me think about my architecture"</em> → should <strong>not</strong> activate</li>
     </ul>
-    <p>Watch the transcript for the skill-loaded notification. If the skill doesn't activate when you expect, your description is too narrow. If it activates when you don't expect, it's too broad.</p>
+    <p>If it doesn't activate when expected, the description is too narrow. If it activates when it shouldn't, it's too broad.</p>
   </section>
 
   <section id="step-6">
     <h2>Step 6 — Iterate on the description</h2>
-    <p>This is where 80% of skill quality comes from. Tighten the description in passes:</p>
+    <p>80% of skill quality comes from the description. Tighten it in passes:</p>
     <ul>
-      <li><strong>Pass 1 — Trigger phrases.</strong> List the exact phrases users say. Quote them in the description.</li>
-      <li><strong>Pass 2 — Negative scope.</strong> If you're getting false positives, add "Does NOT apply to X" sentences.</li>
-      <li><strong>Pass 3 — Input shape.</strong> Mention attached files, staged state, current branch — whatever context clues separate this from related skills.</li>
+      <li><strong>Pass 1 — Trigger phrases.</strong> List exact phrases users say. Quote them.</li>
+      <li><strong>Pass 2 — Negative scope.</strong> If getting false positives, add "Does NOT apply to X" sentences.</li>
+      <li><strong>Pass 3 — Input shape.</strong> Mention attached files, staged state, current branch.</li>
     </ul>
   </section>
 
   <section id="step-7">
     <h2>Step 7 — Package &amp; publish</h2>
-    <p>To share with teammates, commit the folder to a public or private repo:</p>
+    <p>Share with teammates by committing the folder to a repo:</p>
 <pre>cd ~/.claude/skills/commit-classifier
 git init
 git add SKILL.md scripts/
 git commit -m <span class="c-tok-str">"Initial commit-classifier skill"</span>
 gh repo create my-team/claude-commit-classifier --public --source=. --push</pre>
-
     <p>Teammates install with:</p>
 <pre>git clone https://github.com/my-team/claude-commit-classifier \
   ~/.claude/skills/commit-classifier</pre>
-
-    <p>For wider distribution, submit a PR to a community skills index (<a href="https://github.com/topics/claude-skills" target="_blank" rel="noopener">github.com/topics/claude-skills</a>) so it shows up in searches.</p>
+    <p>For wider distribution, bundle it into a <a href="plugins.html">plugin</a>.</p>
   </section>
 
   <section id="templates">
@@ -246,7 +199,7 @@ When invoked, do X, then Y.</pre>
 2. Decide based on output.
 3. Report back to the user.</pre>
 
-    <h3>Skill with multi-step lookup table</h3>
+    <h3>Skill with lookup table</h3>
 <pre><span class="c-tok-com">---</span>
 <span class="c-tok-key">name</span>: api-error-helper
 <span class="c-tok-key">description</span>: |
@@ -269,37 +222,85 @@ When invoked, do X, then Y.</pre>
     <ul>
       <li>[ ] <code>name</code> matches the folder name (kebab-case)</li>
       <li>[ ] <code>description</code> includes 2+ concrete trigger phrases</li>
-      <li>[ ] <code>allowed-tools</code> is the minimum needed — no extra <code>Bash</code> / <code>Write</code></li>
+      <li>[ ] <code>allowed-tools</code> is the minimum needed</li>
       <li>[ ] Scripts have an execute bit (<code>chmod +x</code>)</li>
       <li>[ ] Heavy reference content is in <code>reference/*.md</code>, not inlined</li>
       <li>[ ] Tested with three positive trigger phrases and two negatives</li>
-      <li>[ ] Tested in a fresh session, not just the one where you built it</li>
-      <li>[ ] README explains what the skill does, install command, and version compatibility</li>
-      <li>[ ] LICENSE file (MIT, Apache-2.0, or BSL — pick one)</li>
+      <li>[ ] Tested in a fresh session, not the one where you built it</li>
+      <li>[ ] README explains what the skill does, install command, version</li>
+      <li>[ ] LICENSE file (MIT, Apache-2.0, or BSL)</li>
     </ul>
   </section>
 
   <div class="callout">
-    <strong>One more thing.</strong> The <code>skill-creator</code> skill in the official repo will scaffold all of this for you. Install it once, then say "create a new skill that does X" — it'll generate the folder, write the frontmatter, and remind you of the checklist above.
+    <strong>One more thing.</strong> The <code>skill-creator</code> skill in the official repo scaffolds all of this for you. Install it, then say "create a new skill that does X" — it'll generate the folder, write the frontmatter, and remind you of the checklist.
   </div>
 
   <p style="margin-top:40px;"><a class="link" href="directory.html">← Back to the directory</a></p>
-  </div>
 </main>
 
 <footer class="footer">
-  <div class="container footer-wrap">
-    <div>
-      <span class="brand-mark small">C</span>
-      <strong>Claude Skills Directory</strong>
-      <p class="muted small">Unofficial community resource. Not affiliated with Anthropic.</p>
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <strong>Claude Pro Guide</strong>
+      </div>
+      <p>The unofficial pro reference for working with Claude — skills, MCP, plugins, hooks, the API, and the 4.x models, covered end to end.</p>
+      <div class="footer-social">
+        <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener" aria-label="anthropics/skills on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.7-5.5 6 .5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        </a>
+        <a href="https://docs.claude.com" target="_blank" rel="noopener" aria-label="Claude documentation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        </a>
+        <a href="https://console.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic API console">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </a>
+        <a href="https://www.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
+      </div>
     </div>
-    <div class="footer-links">
-      <a href="directory.html">Directory</a>
-      <a href="install.html">Install</a>
-      <a href="guide.html">Guide</a>
-      <a href="create.html">Build a Skill</a>
+
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="directory.html">Skills directory</a>
+      <a href="mcp.html">MCP</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="api.html">API</a>
     </div>
+
+    <div class="footer-col">
+      <h4>Reference</h4>
+      <a href="commands.html">Slash commands</a>
+      <a href="hooks.html">Hooks</a>
+      <a href="models.html">Models</a>
+      <a href="guide.html">How skills work</a>
+      <a href="create.html">Build a skill</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com<span class="ext">↗</span></a>
+      <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">anthropics/skills<span class="ext">↗</span></a>
+      <a href="https://console.anthropic.com" target="_blank" rel="noopener">API console<span class="ext">↗</span></a>
+      <a href="https://www.anthropic.com" target="_blank" rel="noopener">Anthropic<span class="ext">↗</span></a>
+      <a href="https://github.com/topics/claude-skills" target="_blank" rel="noopener">Community skills<span class="ext">↗</span></a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <div class="footer-meta">
+      <span>© 2026 Claude Pro Guide</span>
+      <span class="sep"></span>
+      <span>Unofficial community resource</span>
+      <span class="sep"></span>
+      <span>Not affiliated with Anthropic</span>
+    </div>
+    <a class="footer-back-top" href="#top">Back to top
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </a>
   </div>
 </footer>
 
@@ -307,12 +308,12 @@ When invoked, do X, then Y.</pre>
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
 
-<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-label="Search skills">
+<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-label="Search">
   <div class="palette">
     <div class="palette-search">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <label for="palette-input" class="sr-only">Search skills</label>
-      <input id="palette-input" type="text" placeholder="Search 91 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
+      <input id="palette-input" type="text" placeholder="Search 101 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
       <span class="esc">esc</span>
     </div>
     <div class="palette-results" id="palette-results"></div>

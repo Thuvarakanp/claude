@@ -1314,10 +1314,155 @@ window.SKILLS = [
     install: "Experimental.",
     tools: ["Write"],
     repo: ""
+  },
+
+  /* ============================================================
+     COMMUNITY DESIGN / DEV — Pro-grade third-party skills
+     ============================================================ */
+
+  {
+    slug: "ui-ux-pro-max",
+    name: "ui-ux-pro-max",
+    emoji: "🎨",
+    category: "community",
+    source: "uipro-cli (npm)",
+    surfaces: ["Claude Code", "Cursor", "Windsurf", "Copilot"],
+    summary: "Comprehensive UI/UX design intelligence — 67 styles, 96 palettes, 57 font pairings, 99 UX rules, 25 chart types across 13 tech stacks.",
+    description: "Searchable design system database with priority-based recommendations. Covers accessibility (WCAG 4.5:1, focus, ARIA), touch targets, performance (image optimization, reduced-motion), layout (z-index scale, responsive), typography pairings, color palettes by industry, landing page structures, chart selection, and stack-specific best practices for React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, and shadcn/ui. Includes a Python CLI (search.py) that queries CSV data for tailored recommendations.",
+    triggers: ["design a", "build a landing page", "ui/ux review", "color palette", "design system", "make it look professional"],
+    install: "Run `npm install -g uipro-cli` then `uipro init -a claude`. Drops a folder into `.claude/skills/ui-ux-pro-max/` with SKILL.md, scripts, and 11 CSV data files.",
+    tools: ["Bash", "Read", "Write"],
+    repo: "https://www.npmjs.com/package/uipro-cli"
+  },
+  {
+    slug: "context7",
+    name: "context7",
+    emoji: "📚",
+    category: "mcp",
+    source: "Context7 MCP",
+    surfaces: ["Claude Code", "claude.ai", "Cursor"],
+    summary: "Live, up-to-date documentation for any library — fetched on demand inside the conversation.",
+    description: "MCP server that pulls fresh docs for thousands of libraries (React, Tailwind, Stripe, AWS SDKs, etc.). Stops Claude from hallucinating APIs based on stale training data. Especially useful for fast-moving libraries.",
+    triggers: ["context7", "use the docs for", "how do I use X library", "library reference"],
+    install: "`claude mcp add context7 npx -y @upstash/context7-mcp` or via the Cursor/Claude Desktop MCP config.",
+    tools: ["mcp__context7__*"],
+    repo: "https://context7.com"
+  },
+  {
+    slug: "deepwiki",
+    name: "deepwiki",
+    emoji: "🧭",
+    category: "mcp",
+    source: "DeepWiki MCP",
+    surfaces: ["Claude Code", "claude.ai"],
+    summary: "Ask questions of any public GitHub repo — DeepWiki indexes the codebase and serves AI-friendly answers.",
+    description: "Connects Claude to deepwiki.com's indexed repos. Useful for understanding unfamiliar open-source projects without cloning them. Returns answers with file/line citations.",
+    triggers: ["deepwiki", "explain this repo", "how does X library implement Y"],
+    install: "`claude mcp add deepwiki npx -y @deepwiki/mcp` (or via the official MCP listing).",
+    tools: ["mcp__deepwiki__*"],
+    repo: "https://deepwiki.com"
+  },
+  {
+    slug: "shadcn-ui",
+    name: "shadcn-ui",
+    emoji: "🧩",
+    category: "mcp",
+    source: "shadcn/ui MCP",
+    surfaces: ["Claude Code", "claude.ai"],
+    summary: "Browse, search, and scaffold shadcn/ui components straight into your project.",
+    description: "MCP server that exposes the shadcn/ui component catalog: search by name or function, view source, and install with the right CLI command. Officially integrated into the Claude.ai Figma MCP for code-design parity.",
+    triggers: ["shadcn", "add a shadcn component", "data table component"],
+    install: "`claude mcp add shadcn npx -y @jpisnice/shadcn-ui-mcp-server` (or via plugin marketplace).",
+    tools: ["mcp__shadcn__*"],
+    repo: "https://ui.shadcn.com/docs/mcp"
+  },
+  {
+    slug: "magic-mcp",
+    name: "magic-mcp",
+    emoji: "✨",
+    category: "mcp",
+    source: "21st.dev Magic",
+    surfaces: ["Claude Code", "Cursor"],
+    summary: "Generate polished React/Tailwind components from a description — 21st.dev's AI component library, accessible via MCP.",
+    description: "Turns prompts like 'a pricing page with toggle and three tiers' into clean, accessible React + Tailwind components. Pulls from 21st.dev's curated library.",
+    triggers: ["magic component", "generate a", "21st.dev component"],
+    install: "`claude mcp add magic npx -y @21st-dev/magic-mcp` and supply a 21st.dev API key.",
+    tools: ["mcp__magic__*"],
+    repo: "https://21st.dev"
+  },
+  {
+    slug: "claude-code-templates",
+    name: "claude-code-templates",
+    emoji: "📦",
+    category: "community",
+    source: "claude-code-templates (npm)",
+    surfaces: ["Claude Code"],
+    summary: "One-command installer for curated agents, commands, hooks, and skills — by language and framework.",
+    description: "CLI that installs ready-made Claude Code configurations: language-specific subagents (rust-pro, python-pro, ts-pro), slash commands, hooks, and skill bundles. Useful for onboarding a project to Claude in minutes.",
+    triggers: ["claude-code-templates", "install claude templates", "set up a Claude config"],
+    install: "`npx claude-code-templates@latest` then pick from the menu, or `npx claude-code-templates@latest --skill <name>` for a specific one.",
+    tools: ["Bash"],
+    repo: "https://github.com/davila7/claude-code-templates"
+  },
+  {
+    slug: "superdesign",
+    name: "superdesign",
+    emoji: "🖌️",
+    category: "community",
+    source: "community",
+    surfaces: ["Claude Code", "Cursor"],
+    summary: "AI design partner skill — generates mockups, iterates layouts, exports to Figma or code.",
+    description: "Community design-focused skill. Pairs with `web-design` and `figma-use` for end-to-end flows from spec to Figma to code. Often bundled in design-focused plugins.",
+    triggers: ["superdesign", "design a screen for", "iterate on this layout"],
+    install: "Drop the skill folder into `~/.claude/skills/superdesign/` (clone from the GitHub source) — see the SuperDesign README.",
+    tools: ["Read", "Write"],
+    repo: "https://github.com/superdesign-ai/superdesign"
+  },
+  {
+    slug: "cursor-rules-import",
+    name: "cursor-rules-import",
+    emoji: "📥",
+    category: "community",
+    source: "community",
+    surfaces: ["Claude Code"],
+    summary: "Convert Cursor's `.cursorrules` and `.cursor/rules/` files into a Claude skill or CLAUDE.md.",
+    description: "Useful when switching from Cursor to Claude Code, or maintaining both. Reads existing Cursor rule files and produces a structured CLAUDE.md or a per-feature skill folder.",
+    triggers: ["import cursor rules", "port cursor config to claude"],
+    install: "Community skill. Clone into `~/.claude/skills/cursor-rules-import/`.",
+    tools: ["Read", "Write"],
+    repo: "https://github.com/topics/claude-skills"
+  },
+  {
+    slug: "claude-flow",
+    name: "claude-flow",
+    emoji: "🌊",
+    category: "community",
+    source: "community",
+    surfaces: ["Claude Code"],
+    summary: "Multi-agent orchestration patterns — spawn subagents, route work, merge results.",
+    description: "Skill that teaches Claude how to break large tasks into coordinated subagent runs. Pairs with the built-in subagent system. Includes templates for planner/executor/critic patterns.",
+    triggers: ["multi-agent", "delegate this to subagents", "orchestrate"],
+    install: "Community skill.",
+    tools: ["Read", "Write"],
+    repo: "https://github.com/topics/claude-code"
+  },
+  {
+    slug: "agent-os",
+    name: "agent-os",
+    emoji: "🧠",
+    category: "community",
+    source: "community",
+    surfaces: ["Claude Code"],
+    summary: "Standards layer for product/spec/decision docs — gives Claude a consistent shape to plan in.",
+    description: "Adds opinionated templates for product specs, design docs, ADRs, and post-mortems. Claude reads from a `.agent-os/` folder when planning, keeping output consistent across teammates.",
+    triggers: ["agent-os", "write a spec", "ADR for this decision"],
+    install: "Community skill. See the Agent OS repo for the bootstrap script.",
+    tools: ["Read", "Write"],
+    repo: "https://github.com/topics/claude-code"
   }
 ];
 
 // Highlighted on the home page (first 6 cards).
 window.FEATURED_SLUGS = [
-  "pdf", "xlsx", "skill-creator", "web-design", "mcp-builder", "security-review"
+  "ui-ux-pro-max", "context7", "shadcn-ui", "pdf", "skill-creator", "security-review"
 ];

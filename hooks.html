@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Hooks — Claude Pro Guide</title>
+<meta name="description" content="Claude Code hooks: every event, the matchers, real-world example automations, and the security model." />
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div class="scroll-progress"></div>
+
+<header class="topbar">
+  <div class="container nav">
+    <a href="index.html" class="brand"><span class="brand-text">Claude Pro Guide</span></a>
+    <nav class="nav-links">
+      <a href="quickstart.html"><span>Quickstart</span></a>
+      <a href="directory.html"><span>Skills</span></a>
+      <a href="mcp.html"><span>MCP</span></a>
+      <a href="plugins.html"><span>Plugins</span></a>
+      <a href="api.html"><span>API</span></a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="kbd-hint" data-palette-trigger aria-label="Search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Search <kbd>⌘K</kbd>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
+      <a class="cta" href="quickstart.html">Get Started →</a>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer" id="mobile-drawer">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="directory.html">Skills</a>
+    <a href="mcp.html">MCP</a>
+    <a href="plugins.html">Plugins</a>
+    <a href="api.html">API</a>
+    <a href="commands.html">Commands</a>
+    <a href="hooks.html" class="active">Hooks</a>
+    <a href="models.html">Models</a>
+  </nav>
+</div>
+
+<main class="container install-page">
+  <h1>Hooks</h1>
+  <p class="lede">Hooks are shell commands Claude Code runs at specific events — before a tool call, after a file edit, when the session ends. They're how you turn Claude from a smart assistant into an integrated piece of your workflow: format on save, notify when long-running tasks finish, block dangerous operations, audit everything.</p>
+
+  <div class="toc">
+    <h4>On this page</h4>
+    <ul>
+      <li><a href="#why">1. Why hooks (vs skills, vs commands)</a></li>
+      <li><a href="#events">2. The event lifecycle</a></li>
+      <li><a href="#config">3. Configuration</a></li>
+      <li><a href="#matchers">4. Matchers</a></li>
+      <li><a href="#env">5. Environment variables your hook sees</a></li>
+      <li><a href="#examples">6. Practical examples</a></li>
+      <li><a href="#blocking">7. Blocking vs non-blocking</a></li>
+      <li><a href="#security">8. Security model</a></li>
+      <li><a href="#debugging">9. Debugging hooks</a></li>
+    </ul>
+  </div>
+
+  <section id="why">
+    <h2>1. Why hooks (vs skills, vs commands)</h2>
+    <p>Skills and commands change <em>what</em> Claude does. Hooks fire when Claude <em>does</em> something — automatic, no LLM in the loop, deterministic.</p>
+    <table>
+      <thead><tr><th>Need</th><th>Reach for</th></tr></thead>
+      <tbody>
+        <tr><td>"Format every file Claude edits."</td><td>Hook (PostToolUse on Edit/Write)</td></tr>
+        <tr><td>"Notify me when long-running prompts finish."</td><td>Hook (Stop)</td></tr>
+        <tr><td>"Run typecheck after edits and feed the result back."</td><td>Hook (PostToolUse + return JSON)</td></tr>
+        <tr><td>"Refuse to delete prod env vars."</td><td>Hook (PreToolUse, return exit 1)</td></tr>
+        <tr><td>"Capture an audit log of every file edit for compliance."</td><td>Hook (PostToolUse)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="events">
+    <h2>2. The event lifecycle</h2>
+    <table>
+      <thead><tr><th>Event</th><th>Fires when</th><th>Common use</th></tr></thead>
+      <tbody>
+        <tr><td><code>SessionStart</code></td><td>Claude Code starts in a directory.</td><td>Print today's tasks, warm caches, pull latest git.</td></tr>
+        <tr><td><code>UserPromptSubmit</code></td><td>You hit Enter on a message.</td><td>Inject context, redact secrets, log prompts.</td></tr>
+        <tr><td><code>PreToolUse</code></td><td>Claude is about to call a tool.</td><td>Block / validate / require confirmation.</td></tr>
+        <tr><td><code>PostToolUse</code></td><td>Claude just finished a tool call.</td><td>Format the file, run typecheck, audit-log.</td></tr>
+        <tr><td><code>Notification</code></td><td>Claude needs your attention (permission, idle).</td><td>Beep, push notification, Slack message.</td></tr>
+        <tr><td><code>Stop</code></td><td>Claude finished a turn.</td><td>Notify you, compute cost, take a screenshot.</td></tr>
+        <tr><td><code>SubagentStop</code></td><td>A subagent finished.</td><td>Same as Stop but per-subagent.</td></tr>
+        <tr><td><code>SessionEnd</code></td><td>Session closes.</td><td>Summarize, log, sync state.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="config">
+    <h2>3. Configuration</h2>
+    <p>Hooks live in <code>~/.claude/settings.json</code> (user) or <code>.claude/settings.json</code> (project) under the <code>hooks</code> key.</p>
+<pre>{
+  <span class="c-tok-str">"hooks"</span>: {
+    <span class="c-tok-str">"PostToolUse"</span>: [
+      {
+        <span class="c-tok-str">"matcher"</span>: <span class="c-tok-str">"Edit|Write"</span>,
+        <span class="c-tok-str">"hooks"</span>: [
+          { <span class="c-tok-str">"type"</span>: <span class="c-tok-str">"command"</span>, <span class="c-tok-str">"command"</span>: <span class="c-tok-str">"prettier --write \"$CLAUDE_FILE\""</span> }
+        ]
+      }
+    ],
+    <span class="c-tok-str">"Stop"</span>: [
+      {
+        <span class="c-tok-str">"hooks"</span>: [
+          { <span class="c-tok-str">"type"</span>: <span class="c-tok-str">"command"</span>, <span class="c-tok-str">"command"</span>: <span class="c-tok-str">"osascript -e 'display notification \"Claude is done\" with title \"Claude Code\"'"</span> }
+        ]
+      }
+    ]
+  }
+}</pre>
+    <p>Each event maps to a list of matcher groups. Each group has one matcher (regex) and one or more commands. Commands run in your shell with a working directory of the project root.</p>
+  </section>
+
+  <section id="matchers">
+    <h2>4. Matchers</h2>
+    <p>The matcher is a regex against the tool name (for <code>PreToolUse</code> / <code>PostToolUse</code>). Common patterns:</p>
+    <table>
+      <thead><tr><th>Matcher</th><th>Fires for</th></tr></thead>
+      <tbody>
+        <tr><td><code>".*"</code> or omitted</td><td>Every tool.</td></tr>
+        <tr><td><code>"Bash"</code></td><td>Just Bash calls.</td></tr>
+        <tr><td><code>"Edit|Write|MultiEdit"</code></td><td>Any file-mutating tool.</td></tr>
+        <tr><td><code>"mcp__github__.*"</code></td><td>Any tool from the GitHub MCP server.</td></tr>
+        <tr><td><code>"Read|Glob|Grep"</code></td><td>Read-only ops.</td></tr>
+      </tbody>
+    </table>
+    <p>Other events (Stop, Notification, SessionStart, etc.) don't take matchers — just hook arrays.</p>
+  </section>
+
+  <section id="env">
+    <h2>5. Environment variables your hook sees</h2>
+    <table>
+      <thead><tr><th>Variable</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>CLAUDE_PROJECT_DIR</code></td><td>The project root.</td></tr>
+        <tr><td><code>CLAUDE_TOOL_NAME</code></td><td>Tool that fired the event (PreToolUse/PostToolUse).</td></tr>
+        <tr><td><code>CLAUDE_FILE</code></td><td>For file ops, the path that was edited / written.</td></tr>
+        <tr><td><code>CLAUDE_COMMAND</code></td><td>For Bash hooks, the command that ran.</td></tr>
+        <tr><td><code>CLAUDE_SESSION_ID</code></td><td>Stable id for the current session.</td></tr>
+        <tr><td><em>stdin</em></td><td>Hook also gets the full event JSON on stdin — useful for richer logic.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="examples">
+    <h2>6. Practical examples</h2>
+
+    <h3>Format every Claude-edited file</h3>
+<pre>{
+  <span class="c-tok-str">"PostToolUse"</span>: [{
+    <span class="c-tok-str">"matcher"</span>: <span class="c-tok-str">"Edit|Write|MultiEdit"</span>,
+    <span class="c-tok-str">"hooks"</span>: [
+      { <span class="c-tok-str">"type"</span>: <span class="c-tok-str">"command"</span>, <span class="c-tok-str">"command"</span>: <span class="c-tok-str">"case \"$CLAUDE_FILE\" in *.ts|*.tsx|*.js|*.jsx|*.json|*.md) prettier --write \"$CLAUDE_FILE\" ;; *.py) ruff format \"$CLAUDE_FILE\" ;; *.go) gofmt -w \"$CLAUDE_FILE\" ;; esac"</span> }
+    ]
+  }]
+}</pre>
+
+    <h3>macOS notification when Claude finishes</h3>
+<pre>{
+  <span class="c-tok-str">"Stop"</span>: [{
+    <span class="c-tok-str">"hooks"</span>: [{ <span class="c-tok-str">"type"</span>: <span class="c-tok-str">"command"</span>, <span class="c-tok-str">"command"</span>: <span class="c-tok-str">"osascript -e 'display notification \"Done\" with title \"Claude Code\" sound name \"Glass\"'"</span> }]
+  }]
+}</pre>
+
+    <h3>Block force-pushes to main</h3>
+<pre>{
+  <span class="c-tok-str">"PreToolUse"</span>: [{
+    <span class="c-tok-str">"matcher"</span>: <span class="c-tok-str">"Bash"</span>,
+    <span class="c-tok-str">"hooks"</span>: [{
+      <span class="c-tok-str">"type"</span>: <span class="c-tok-str">"command"</span>,
+      <span class="c-tok-str">"command"</span>: <span class="c-tok-str">"echo \"$CLAUDE_COMMAND\" | grep -qE 'git push --force.*(main|master)' && { echo 'Refusing: force-push to main blocked' &gt;&amp;2; exit 2; }; true"</span>
+    }]
+  }]
+}</pre>
+    <p>Exit code <code>2</code> = block. Exit code <code>0</code> = allow. The stderr text is shown to Claude as the reason.</p>
+
+    <h3>Audit log of every file edit</h3>
+<pre>{
+  <span class="c-tok-str">"PostToolUse"</span>: [{
+    <span class="c-tok-str">"matcher"</span>: <span class="c-tok-str">"Edit|Write|MultiEdit"</span>,
+    <span class="c-tok-str">"hooks"</span>: [{
+      <span class="c-tok-str">"type"</span>: <span class="c-tok-str">"command"</span>,
+      <span class="c-tok-str">"command"</span>: <span class="c-tok-str">"echo \"$(date -Iseconds) $CLAUDE_SESSION_ID $CLAUDE_TOOL_NAME $CLAUDE_FILE\" &gt;&gt; ~/.claude/audit.log"</span>
+    }]
+  }]
+}</pre>
+
+    <h3>Inject "today's date" into every prompt</h3>
+<pre>{
+  <span class="c-tok-str">"UserPromptSubmit"</span>: [{
+    <span class="c-tok-str">"hooks"</span>: [{
+      <span class="c-tok-str">"type"</span>: <span class="c-tok-str">"command"</span>,
+      <span class="c-tok-str">"command"</span>: <span class="c-tok-str">"echo '{\"appendToPrompt\":\"(today: '\"$(date +%F)\"')\"}'"</span>
+    }]
+  }]
+}</pre>
+    <p>For events that support it, returning JSON on stdout modifies behavior — here, appending context to the prompt before Claude sees it.</p>
+
+    <h3>Typecheck after edits and report back</h3>
+<pre>{
+  <span class="c-tok-str">"PostToolUse"</span>: [{
+    <span class="c-tok-str">"matcher"</span>: <span class="c-tok-str">"Edit|Write|MultiEdit"</span>,
+    <span class="c-tok-str">"hooks"</span>: [{
+      <span class="c-tok-str">"type"</span>: <span class="c-tok-str">"command"</span>,
+      <span class="c-tok-str">"command"</span>: <span class="c-tok-str">"if [[ \"$CLAUDE_FILE\" == *.ts || \"$CLAUDE_FILE\" == *.tsx ]]; then npx tsc --noEmit 2&gt;&amp;1 | head -50; fi"</span>
+    }]
+  }]
+}</pre>
+    <p>Output goes back to Claude, who'll see typecheck errors and self-correct.</p>
+  </section>
+
+  <section id="blocking">
+    <h2>7. Blocking vs non-blocking</h2>
+    <table>
+      <thead><tr><th>Exit code</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><code>0</code></td><td>Allow, attach stdout as info.</td></tr>
+        <tr><td><code>2</code></td><td>Block the tool call (PreToolUse). Stderr is shown to Claude as the reason.</td></tr>
+        <tr><td>Other non-zero</td><td>Treated as a soft error — logged, but doesn't block.</td></tr>
+      </tbody>
+    </table>
+    <p>For events that don't gate an action (Stop, SessionEnd, Notification), exit codes are advisory.</p>
+  </section>
+
+  <section id="security">
+    <h2>8. Security model</h2>
+    <div class="callout warn"><strong>Hooks run as you.</strong> A hook is just a shell command in your environment with your perms. Treat hook configs the same as any executable in your <code>$PATH</code>.</div>
+    <ul>
+      <li><strong>Project hooks need consent.</strong> When Claude Code loads a project that has hooks in <code>.claude/settings.json</code>, it surfaces them and asks before enabling. Don't blindly accept.</li>
+      <li><strong>Pin commands to absolute paths</strong> for sensitive hooks. <code>/usr/local/bin/prettier</code> beats <code>prettier</code> when an attacker could shadow your PATH.</li>
+      <li><strong>Avoid eval'ing untrusted input.</strong> Don't pipe <code>$CLAUDE_COMMAND</code> directly into <code>eval</code> or <code>bash -c</code>.</li>
+      <li><strong>Use <code>deny</code> in permissions</strong> alongside PreToolUse hooks for defense in depth.</li>
+    </ul>
+  </section>
+
+  <section id="debugging">
+    <h2>9. Debugging hooks</h2>
+    <ul>
+      <li>Run Claude with <code>--debug</code> — hook invocations + exit codes are logged.</li>
+      <li>Have your hook write to a temp file first: <code>echo "$CLAUDE_FILE" &gt;&gt; /tmp/claude-hook.log</code>.</li>
+      <li>Test the command in your shell with the env vars set: <code>CLAUDE_FILE=src/foo.ts prettier --write "$CLAUDE_FILE"</code>.</li>
+      <li>If a hook never fires, check the event name (case-sensitive) and the matcher regex against the actual tool name (run <code>/help</code> to see exact names).</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <strong>Claude Pro Guide</strong>
+      </div>
+      <p>The unofficial pro reference for working with Claude — skills, MCP, plugins, hooks, the API, and the 4.x models, covered end to end.</p>
+      <div class="footer-social">
+        <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener" aria-label="anthropics/skills on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.7-5.5 6 .5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        </a>
+        <a href="https://docs.claude.com" target="_blank" rel="noopener" aria-label="Claude documentation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        </a>
+        <a href="https://console.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic API console">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </a>
+        <a href="https://www.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="directory.html">Skills directory</a>
+      <a href="mcp.html">MCP</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="api.html">API</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Reference</h4>
+      <a href="commands.html">Slash commands</a>
+      <a href="hooks.html">Hooks</a>
+      <a href="models.html">Models</a>
+      <a href="guide.html">How skills work</a>
+      <a href="create.html">Build a skill</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com<span class="ext">↗</span></a>
+      <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">anthropics/skills<span class="ext">↗</span></a>
+      <a href="https://console.anthropic.com" target="_blank" rel="noopener">API console<span class="ext">↗</span></a>
+      <a href="https://www.anthropic.com" target="_blank" rel="noopener">Anthropic<span class="ext">↗</span></a>
+      <a href="https://github.com/topics/claude-skills" target="_blank" rel="noopener">Community skills<span class="ext">↗</span></a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <div class="footer-meta">
+      <span>© 2026 Claude Pro Guide</span>
+      <span class="sep"></span>
+      <span>Unofficial community resource</span>
+      <span class="sep"></span>
+      <span>Not affiliated with Anthropic</span>
+    </div>
+    <a class="footer-back-top" href="#top">Back to top
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </a>
+  </div>
+</footer>
+
+<button class="fab" id="fab" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-label="Search">
+  <div class="palette">
+    <div class="palette-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <label for="palette-input" class="sr-only">Search skills</label>
+      <input id="palette-input" type="text" placeholder="Search 101 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
+      <span class="esc">esc</span>
+    </div>
+    <div class="palette-results" id="palette-results"></div>
+  </div>
+</div>
+
+<script src="skills-data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

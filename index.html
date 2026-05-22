@@ -18,14 +18,14 @@
   <div class="container nav">
     <a href="index.html" class="brand">
       <!-- <span class="brand-mark">C</span> -->
-      <span class="brand-text">Skills Directory</span>
+      <span class="brand-text">Claude Pro Guide</span>
     </a>
     <nav class="nav-links">
-      <a href="index.html" class="active"><span>Home</span></a>
-      <a href="directory.html"><span>Directory</span></a>
-      <a href="install.html"><span>Install</span></a>
-      <a href="guide.html"><span>Guide</span></a>
-      <a href="create.html"><span>Build a Skill</span></a>
+      <a href="quickstart.html"><span>Quickstart</span></a>
+      <a href="directory.html"><span>Skills</span></a>
+      <a href="mcp.html"><span>MCP</span></a>
+      <a href="plugins.html"><span>Plugins</span></a>
+      <a href="api.html"><span>API</span></a>
     </nav>
     <div style="display:flex;align-items:center;gap:10px;">
       <button class="kbd-hint" data-palette-trigger aria-label="Search skills">
@@ -42,39 +42,43 @@
 <div class="mobile-drawer" id="mobile-drawer">
   <nav>
     <a href="index.html" class="active">Home</a>
-    <a href="directory.html">Directory</a>
-    <a href="install.html">Install</a>
-    <a href="guide.html">Guide</a>
-    <a href="create.html">Build a Skill</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="directory.html">Skills</a>
+    <a href="mcp.html">MCP</a>
+    <a href="plugins.html">Plugins</a>
+    <a href="api.html">API</a>
+    <a href="commands.html">Commands</a>
+    <a href="hooks.html">Hooks</a>
+    <a href="models.html">Models</a>
   </nav>
 </div>
 
 <section class="hero" id="frame-hero">
   <div class="container">
     <div class="hero-center">
-      <span class="eyebrow reveal"><span class="pulse"></span> v0.2 · 91 skills indexed</span>
+      <span class="eyebrow reveal"><span class="pulse"></span> v0.3 · Updated 2026-05-22 · A-to-Z guide</span>
       <h1 class="reveal" data-delay="1">
-        The complete directory of<br />
-        <span class="grad">Claude Agent Skills.</span>
+        Everything Claude,<br />
+        <span class="grad">in one place.</span>
       </h1>
       <p class="lede reveal" data-delay="2">
-        Skills are folders of instructions and scripts that Claude loads on demand — to write Excel files, ship Figma designs, run a security review, or any workflow you teach it. Browse, install, and build them here.
+        The pro reference for working with Claude across every surface — skills, MCP servers, plugins, slash commands, hooks, the API, and the 4.x model family. Built for engineers who ship.
       </p>
       <div class="hero-cta reveal" data-delay="3">
-        <a class="btn-primary" href="directory.html">
-          Browse the directory
+        <a class="btn-primary" href="quickstart.html">
+          Start the quickstart
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </a>
-        <a class="btn-ghost" href="install.html">
-          Installation guide
+        <a class="btn-ghost" href="directory.html">
+          Browse 101 skills
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </a>
       </div>
       <div class="hero-stats reveal" data-delay="4">
-        <div><strong data-counter="91">0</strong><span>skills indexed</span></div>
-        <div><strong data-counter="5">0</strong><span>install methods</span></div>
+        <div><strong data-counter="101">0</strong><span>skills indexed</span></div>
+        <div><strong data-counter="50" data-suffix="+">0</strong><span>MCP servers</span></div>
+        <div><strong data-counter="9">0</strong><span>guide pages</span></div>
         <div><strong data-counter="4">0</strong><span>Claude surfaces</span></div>
-        <div><strong data-counter="100" data-suffix="%">0</strong><span>open spec</span></div>
       </div>
     </div>
 
@@ -206,7 +210,7 @@ When invoked, do <span class="c-tok-str">X</span>, then <span class="c-tok-str">
       <p class="muted">A short tour from the official Anthropic catalog and the community.</p>
     </div>
     <div class="grid-cards" id="featured-cards"></div>
-    <div class="center"><a class="btn-ghost" href="directory.html">See all 91 skills →</a></div>
+    <div class="center"><a class="btn-ghost" href="directory.html">See all 101 skills →</a></div>
     </div>
   </div>
 </section>
@@ -263,33 +267,69 @@ client.beta.messages.create(
 </section>
 
 <footer class="footer">
-  <div class="container footer-wrap">
-    <div>
-      <span class="brand-mark small">C</span>
-      <strong>Claude Skills Directory</strong>
-      <p class="muted small">Unofficial community resource. Not affiliated with Anthropic. All skill names and trademarks belong to their respective owners.</p>
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <strong>Claude Pro Guide</strong>
+      </div>
+      <p>The unofficial pro reference for working with Claude — skills, MCP, plugins, hooks, the API, and the 4.x models, covered end to end.</p>
+      <div class="footer-social">
+        <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener" aria-label="anthropics/skills on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.7-5.5 6 .5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        </a>
+        <a href="https://docs.claude.com" target="_blank" rel="noopener" aria-label="Claude documentation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        </a>
+        <a href="https://console.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic API console">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </a>
+        <a href="https://www.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
+      </div>
     </div>
-    <div class="footer-links">
-      <a href="directory.html">Directory</a>
-      <a href="install.html">Install</a>
-      <a href="guide.html">Guide</a>
-      <a href="create.html">Build a Skill</a>
-      <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">Anthropic/skills ↗</a>
-      <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com ↗</a>
+
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="directory.html">Skills directory</a>
+      <a href="mcp.html">MCP</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="api.html">API</a>
     </div>
+
+    <div class="footer-col">
+      <h4>Reference</h4>
+      <a href="commands.html">Slash commands</a>
+      <a href="hooks.html">Hooks</a>
+      <a href="models.html">Models</a>
+      <a href="guide.html">How skills work</a>
+      <a href="create.html">Build a skill</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com<span class="ext">↗</span></a>
+      <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">anthropics/skills<span class="ext">↗</span></a>
+      <a href="https://console.anthropic.com" target="_blank" rel="noopener">API console<span class="ext">↗</span></a>
+      <a href="https://www.anthropic.com" target="_blank" rel="noopener">Anthropic<span class="ext">↗</span></a>
+      <a href="https://github.com/topics/claude-skills" target="_blank" rel="noopener">Community skills<span class="ext">↗</span></a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <div class="footer-meta">
+      <span>© 2026 Claude Pro Guide</span>
+      <span class="sep"></span>
+      <span>Unofficial community resource</span>
+      <span class="sep"></span>
+      <span>Not affiliated with Anthropic</span>
+    </div>
+    <a class="footer-back-top" href="#top">Back to top
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </a>
   </div>
 </footer>
-
-<aside class="layers-panel" id="layers-panel" aria-label="Frame navigator">
-  <div class="layers-head">
-    <span class="lh-icon">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.91a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>
-    </span>
-    <span class="lh-title">Layers</span>
-    <span class="lh-toggle">−</span>
-  </div>
-  <ul class="layers-list"></ul>
-</aside>
 
 <button class="fab" id="fab" aria-label="Back to top">
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
@@ -300,7 +340,7 @@ client.beta.messages.create(
     <div class="palette-search">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <label for="palette-input" class="sr-only">Search skills</label>
-      <input id="palette-input" type="text" placeholder="Search 91 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
+      <input id="palette-input" type="text" placeholder="Search 101 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
       <span class="esc">esc</span>
     </div>
     <div class="palette-results" id="palette-results"></div>

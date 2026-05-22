@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>API Guide — Claude Pro Guide</title>
+<meta name="description" content="Anthropic API end-to-end: auth, models, prompt caching, extended thinking, tool use, vision, PDFs, files, batch, citations, computer use, and pricing." />
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div class="scroll-progress"></div>
+
+<header class="topbar">
+  <div class="container nav">
+    <a href="index.html" class="brand"><span class="brand-text">Claude Pro Guide</span></a>
+    <nav class="nav-links">
+      <a href="quickstart.html"><span>Quickstart</span></a>
+      <a href="directory.html"><span>Skills</span></a>
+      <a href="mcp.html"><span>MCP</span></a>
+      <a href="plugins.html"><span>Plugins</span></a>
+      <a href="api.html" class="active"><span>API</span></a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="kbd-hint" data-palette-trigger aria-label="Search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Search <kbd>⌘K</kbd>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
+      <a class="cta" href="quickstart.html">Get Started →</a>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer" id="mobile-drawer">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="directory.html">Skills</a>
+    <a href="mcp.html">MCP</a>
+    <a href="plugins.html">Plugins</a>
+    <a href="api.html" class="active">API</a>
+    <a href="commands.html">Commands</a>
+    <a href="hooks.html">Hooks</a>
+    <a href="models.html">Models</a>
+  </nav>
+</div>
+
+<main class="container install-page">
+  <h1>The Anthropic API</h1>
+  <p class="lede">Everything you actually use when shipping an app on Claude — auth, the model picker, prompt caching, extended thinking, tool use, vision, PDFs, files, batch processing, citations, and the cost levers that decide your bill.</p>
+
+  <div class="toc">
+    <h4>On this page</h4>
+    <ul>
+      <li><a href="#setup">1. Setup &amp; first call</a></li>
+      <li><a href="#models">2. Model IDs &amp; picking the right one</a></li>
+      <li><a href="#caching">3. Prompt caching (always-on cost cut)</a></li>
+      <li><a href="#thinking">4. Extended thinking</a></li>
+      <li><a href="#tools">5. Tool use</a></li>
+      <li><a href="#vision">6. Vision (images)</a></li>
+      <li><a href="#pdf">7. PDF input</a></li>
+      <li><a href="#files">8. Files API</a></li>
+      <li><a href="#batch">9. Batch API (50% off)</a></li>
+      <li><a href="#citations">10. Citations</a></li>
+      <li><a href="#computer">11. Computer use</a></li>
+      <li><a href="#streaming">12. Streaming</a></li>
+      <li><a href="#pricing">13. Pricing &amp; rate limits</a></li>
+      <li><a href="#patterns">14. Production patterns</a></li>
+    </ul>
+  </div>
+
+  <section id="setup">
+    <h2>1. Setup &amp; first call</h2>
+    <ol>
+      <li>Sign in at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>.</li>
+      <li>Settings → API Keys → <em>Create Key</em>. Copy it once.</li>
+      <li>Add billing + set a monthly usage limit.</li>
+      <li>Export <code>ANTHROPIC_API_KEY</code> in your shell.</li>
+    </ol>
+
+<pre><span class="c-tok-com"># Python</span>
+pip install <span class="c-tok-str">"anthropic&gt;=0.40"</span>
+<span class="c-tok-com"># Node</span>
+npm i @anthropic-ai/sdk</pre>
+
+<pre><span class="c-tok-key">from</span> anthropic <span class="c-tok-key">import</span> Anthropic
+client = Anthropic()
+
+resp = client.messages.create(
+    model=<span class="c-tok-str">"claude-opus-4-7"</span>,
+    max_tokens=<span class="c-tok-str">1024</span>,
+    system=<span class="c-tok-str">"You are a concise senior engineer."</span>,
+    messages=[{<span class="c-tok-str">"role"</span>: <span class="c-tok-str">"user"</span>, <span class="c-tok-str">"content"</span>: <span class="c-tok-str">"Refactor this for clarity: ..."</span>}],
+)
+<span class="c-tok-key">print</span>(resp.content[<span class="c-tok-str">0</span>].text)
+<span class="c-tok-key">print</span>(resp.usage)  <span class="c-tok-com"># input_tokens, output_tokens, cache_*</span></pre>
+  </section>
+
+  <section id="models">
+    <h2>2. Model IDs &amp; picking the right one</h2>
+    <table>
+      <thead><tr><th>Model</th><th>ID</th><th>Best for</th></tr></thead>
+      <tbody>
+        <tr><td>Opus 4.7</td><td><code>claude-opus-4-7</code></td><td>Hard reasoning, large refactors, multi-step planning.</td></tr>
+        <tr><td>Opus 4.7 (1M)</td><td><code>claude-opus-4-7[1m]</code></td><td>Same model, 1M-token context. Use for huge codebases or long docs.</td></tr>
+        <tr><td>Sonnet 4.6</td><td><code>claude-sonnet-4-6</code></td><td>Daily workhorse. Strong + fast + cheap. Default for most apps.</td></tr>
+        <tr><td>Haiku 4.5</td><td><code>claude-haiku-4-5-20251001</code></td><td>High-volume, latency-sensitive: classification, routing, autocomplete.</td></tr>
+      </tbody>
+    </table>
+    <p>See the <a href="models.html">Models page</a> for the full comparison, benchmarks, and a decision flowchart.</p>
+    <div class="callout info"><strong>Default to Sonnet.</strong> Upgrade to Opus only when Sonnet visibly struggles. Downgrade to Haiku when the task is bounded and a million calls/day is the norm.</div>
+  </section>
+
+  <section id="caching">
+    <h2>3. Prompt caching (always-on cost cut)</h2>
+    <p>The single biggest cost lever. Mark any chunk of your prompt with <code>cache_control: {"type": "ephemeral"}</code> and Anthropic caches it for ~5 minutes. Cache hits are <strong>~90% cheaper</strong> and faster.</p>
+<pre>resp = client.messages.create(
+    model=<span class="c-tok-str">"claude-opus-4-7"</span>,
+    max_tokens=<span class="c-tok-str">1024</span>,
+    system=[
+        {<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"text"</span>, <span class="c-tok-str">"text"</span>: <span class="c-tok-str">"You are a senior engineer."</span>},
+        {
+            <span class="c-tok-str">"type"</span>: <span class="c-tok-str">"text"</span>,
+            <span class="c-tok-str">"text"</span>: LONG_CODEBASE_CONTEXT,            <span class="c-tok-com"># 200k tokens of docs / code</span>
+            <span class="c-tok-str">"cache_control"</span>: {<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"ephemeral"</span>},  <span class="c-tok-com"># &lt;-- cache this</span>
+        },
+    ],
+    messages=[{<span class="c-tok-str">"role"</span>: <span class="c-tok-str">"user"</span>, <span class="c-tok-str">"content"</span>: <span class="c-tok-str">"What does foo() do?"</span>}],
+)</pre>
+    <p>The next call within 5 minutes that has the <em>same prefix</em> gets the cache hit. The cache extends as long as you keep hitting it — heavy users see TTLs in the hours.</p>
+    <ul>
+      <li><strong>Cache stable prefixes.</strong> System prompt, tool definitions, big context docs. Don't try to cache the user's question.</li>
+      <li><strong>Put dynamic content last.</strong> Caching is prefix-based — change a byte at the start and the whole cache misses.</li>
+      <li><strong>Up to 4 cache breakpoints</strong> per request. Useful for layered prompts (always-cached system + sometimes-cached project context + per-call question).</li>
+    </ul>
+    <div class="callout"><strong>Rule of thumb:</strong> if you're sending the same 10k+ tokens twice in five minutes, you're losing money by not caching.</div>
+  </section>
+
+  <section id="thinking">
+    <h2>4. Extended thinking</h2>
+    <p>Give Claude scratchpad tokens before its final answer. Pays off on math, multi-step reasoning, and code planning. Opus and Sonnet support it; Haiku does not.</p>
+<pre>resp = client.messages.create(
+    model=<span class="c-tok-str">"claude-opus-4-7"</span>,
+    max_tokens=<span class="c-tok-str">4096</span>,
+    thinking={<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"enabled"</span>, <span class="c-tok-str">"budget_tokens"</span>: <span class="c-tok-str">10000</span>},
+    messages=[{<span class="c-tok-str">"role"</span>: <span class="c-tok-str">"user"</span>, <span class="c-tok-str">"content"</span>: HARD_PROBLEM}],
+)
+
+<span class="c-tok-key">for</span> block <span class="c-tok-key">in</span> resp.content:
+    <span class="c-tok-key">if</span> block.type == <span class="c-tok-str">"thinking"</span>:
+        <span class="c-tok-key">print</span>(<span class="c-tok-str">"Thinking:"</span>, block.thinking)
+    <span class="c-tok-key">elif</span> block.type == <span class="c-tok-str">"text"</span>:
+        <span class="c-tok-key">print</span>(<span class="c-tok-str">"Answer:"</span>, block.text)</pre>
+    <ul>
+      <li><code>budget_tokens</code> caps how much it thinks. 4000–16000 is the sweet spot for most.</li>
+      <li>Thinking blocks count toward your output tokens, but they're cached for free if you continue the conversation.</li>
+      <li>For agentic workflows, pass the previous assistant turn's thinking blocks back in — it keeps continuity.</li>
+    </ul>
+  </section>
+
+  <section id="tools">
+    <h2>5. Tool use</h2>
+    <p>The mechanism that turns Claude into an agent. You define tools as JSON schemas; the model picks when and how to call them.</p>
+<pre>tools = [{
+    <span class="c-tok-str">"name"</span>: <span class="c-tok-str">"get_weather"</span>,
+    <span class="c-tok-str">"description"</span>: <span class="c-tok-str">"Current weather for a city."</span>,
+    <span class="c-tok-str">"input_schema"</span>: {
+        <span class="c-tok-str">"type"</span>: <span class="c-tok-str">"object"</span>,
+        <span class="c-tok-str">"properties"</span>: {<span class="c-tok-str">"city"</span>: {<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"string"</span>}},
+        <span class="c-tok-str">"required"</span>: [<span class="c-tok-str">"city"</span>],
+    },
+}]
+
+resp = client.messages.create(
+    model=<span class="c-tok-str">"claude-sonnet-4-6"</span>,
+    max_tokens=<span class="c-tok-str">1024</span>,
+    tools=tools,
+    messages=[{<span class="c-tok-str">"role"</span>: <span class="c-tok-str">"user"</span>, <span class="c-tok-str">"content"</span>: <span class="c-tok-str">"What's it like in Tokyo?"</span>}],
+)
+
+<span class="c-tok-com"># If resp.stop_reason == "tool_use", run the tool and send tool_result back</span></pre>
+    <ul>
+      <li><strong>Schema is the docs.</strong> Tool selection quality is mostly a function of how clearly you describe each tool + its parameters.</li>
+      <li><strong>Multi-tool loops</strong> — keep calling <code>messages.create</code>, appending the tool results, until <code>stop_reason</code> is <code>end_turn</code>.</li>
+      <li><strong>Parallel tools</strong> — Claude can request multiple tool calls in one turn. Run them concurrently.</li>
+      <li>Server-side tools available out of the box: <code>web_search</code>, <code>code_execution</code>, <code>computer_use</code>.</li>
+    </ul>
+  </section>
+
+  <section id="vision">
+    <h2>6. Vision (images)</h2>
+<pre><span class="c-tok-key">import</span> base64, httpx
+img = base64.b64encode(httpx.get(<span class="c-tok-str">"https://.../diagram.png"</span>).content).decode()
+
+resp = client.messages.create(
+    model=<span class="c-tok-str">"claude-opus-4-7"</span>,
+    max_tokens=<span class="c-tok-str">1024</span>,
+    messages=[{
+        <span class="c-tok-str">"role"</span>: <span class="c-tok-str">"user"</span>,
+        <span class="c-tok-str">"content"</span>: [
+            {<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"image"</span>, <span class="c-tok-str">"source"</span>: {<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"base64"</span>, <span class="c-tok-str">"media_type"</span>: <span class="c-tok-str">"image/png"</span>, <span class="c-tok-str">"data"</span>: img}},
+            {<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"text"</span>, <span class="c-tok-str">"text"</span>: <span class="c-tok-str">"What does this architecture diagram describe?"</span>},
+        ],
+    }],
+)</pre>
+    <p>Supports PNG, JPEG, GIF, WebP. Up to 100 images per request. Use URL sources (<code>"type": "url"</code>) when the file is already public — saves you the base64 dance.</p>
+  </section>
+
+  <section id="pdf">
+    <h2>7. PDF input</h2>
+    <p>Send PDFs directly. Claude sees text and visual layout — better than passing only OCR'd text.</p>
+<pre>pdf_b64 = base64.b64encode(<span class="c-tok-key">open</span>(<span class="c-tok-str">"contract.pdf"</span>, <span class="c-tok-str">"rb"</span>).read()).decode()
+
+resp = client.messages.create(
+    model=<span class="c-tok-str">"claude-opus-4-7"</span>,
+    max_tokens=<span class="c-tok-str">2048</span>,
+    messages=[{
+        <span class="c-tok-str">"role"</span>: <span class="c-tok-str">"user"</span>,
+        <span class="c-tok-str">"content"</span>: [
+            {<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"document"</span>, <span class="c-tok-str">"source"</span>: {<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"base64"</span>, <span class="c-tok-str">"media_type"</span>: <span class="c-tok-str">"application/pdf"</span>, <span class="c-tok-str">"data"</span>: pdf_b64}},
+            {<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"text"</span>, <span class="c-tok-str">"text"</span>: <span class="c-tok-str">"Summarize the indemnity clause and flag risks."</span>},
+        ],
+    }],
+)</pre>
+  </section>
+
+  <section id="files">
+    <h2>8. Files API</h2>
+    <p>Upload once, reference many times. Useful for skills, large context docs, and reusable PDFs.</p>
+<pre>file = client.beta.files.upload(file=<span class="c-tok-key">open</span>(<span class="c-tok-str">"my-skill.zip"</span>, <span class="c-tok-str">"rb"</span>), purpose=<span class="c-tok-str">"skills"</span>)
+
+resp = client.beta.messages.create(
+    model=<span class="c-tok-str">"claude-opus-4-7"</span>,
+    betas=[<span class="c-tok-str">"skills-2025-10-02"</span>],
+    container={<span class="c-tok-str">"skills"</span>: [{<span class="c-tok-str">"file_id"</span>: file.id}]},
+    messages=[...],
+)</pre>
+  </section>
+
+  <section id="batch">
+    <h2>9. Batch API (50% off)</h2>
+    <p>Submit up to 100k requests, get results within 24 hours, at half the per-token cost. The right tool for evals, backfills, bulk classification.</p>
+<pre>batch = client.beta.messages.batches.create(
+    requests=[
+        {<span class="c-tok-str">"custom_id"</span>: <span class="c-tok-str">"row-1"</span>, <span class="c-tok-str">"params"</span>: {<span class="c-tok-str">"model"</span>: <span class="c-tok-str">"claude-sonnet-4-6"</span>, <span class="c-tok-str">"max_tokens"</span>: <span class="c-tok-str">1024</span>, <span class="c-tok-str">"messages"</span>: [...]}},
+        {<span class="c-tok-str">"custom_id"</span>: <span class="c-tok-str">"row-2"</span>, <span class="c-tok-str">"params"</span>: {...}},
+        <span class="c-tok-com"># ...up to 100,000</span>
+    ],
+)
+
+<span class="c-tok-com"># later</span>
+result = client.beta.messages.batches.retrieve(batch.id)</pre>
+  </section>
+
+  <section id="citations">
+    <h2>10. Citations</h2>
+    <p>Make Claude cite exact passages from documents you provided. Critical for RAG, compliance, and any UX that displays sources.</p>
+<pre>resp = client.messages.create(
+    model=<span class="c-tok-str">"claude-opus-4-7"</span>,
+    max_tokens=<span class="c-tok-str">1024</span>,
+    messages=[{
+        <span class="c-tok-str">"role"</span>: <span class="c-tok-str">"user"</span>,
+        <span class="c-tok-str">"content"</span>: [
+            {
+                <span class="c-tok-str">"type"</span>: <span class="c-tok-str">"document"</span>,
+                <span class="c-tok-str">"source"</span>: {<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"text"</span>, <span class="c-tok-str">"media_type"</span>: <span class="c-tok-str">"text/plain"</span>, <span class="c-tok-str">"data"</span>: DOC_TEXT},
+                <span class="c-tok-str">"title"</span>: <span class="c-tok-str">"Q3 financial report"</span>,
+                <span class="c-tok-str">"citations"</span>: {<span class="c-tok-str">"enabled"</span>: <span class="c-tok-str">True</span>},
+            },
+            {<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"text"</span>, <span class="c-tok-str">"text"</span>: <span class="c-tok-str">"What was net revenue?"</span>},
+        ],
+    }],
+)</pre>
+    <p>The response includes <code>citations</code> with character ranges back into the source doc. Render them as footnotes.</p>
+  </section>
+
+  <section id="computer">
+    <h2>11. Computer use</h2>
+    <p>Claude can drive a virtual desktop — move mouse, type, take screenshots. Public beta on Opus and Sonnet.</p>
+<pre>resp = client.beta.messages.create(
+    model=<span class="c-tok-str">"claude-opus-4-7"</span>,
+    max_tokens=<span class="c-tok-str">2048</span>,
+    betas=[<span class="c-tok-str">"computer-use-2025-04-29"</span>],
+    tools=[{<span class="c-tok-str">"type"</span>: <span class="c-tok-str">"computer_20250124"</span>, <span class="c-tok-str">"name"</span>: <span class="c-tok-str">"computer"</span>, <span class="c-tok-str">"display_width_px"</span>: <span class="c-tok-str">1024</span>, <span class="c-tok-str">"display_height_px"</span>: <span class="c-tok-str">768</span>}],
+    messages=[{<span class="c-tok-str">"role"</span>: <span class="c-tok-str">"user"</span>, <span class="c-tok-str">"content"</span>: <span class="c-tok-str">"Open the Settings app and turn on dark mode."</span>}],
+)</pre>
+    <div class="callout warn"><strong>Run this in a sandboxed VM.</strong> Computer use means Claude can click anything. Treat it like a junior intern with admin access — useful, scary, contained.</div>
+  </section>
+
+  <section id="streaming">
+    <h2>12. Streaming</h2>
+<pre><span class="c-tok-key">with</span> client.messages.stream(
+    model=<span class="c-tok-str">"claude-sonnet-4-6"</span>,
+    max_tokens=<span class="c-tok-str">1024</span>,
+    messages=[{<span class="c-tok-str">"role"</span>: <span class="c-tok-str">"user"</span>, <span class="c-tok-str">"content"</span>: <span class="c-tok-str">"Tell me about caching."</span>}],
+) <span class="c-tok-key">as</span> stream:
+    <span class="c-tok-key">for</span> text <span class="c-tok-key">in</span> stream.text_stream:
+        <span class="c-tok-key">print</span>(text, end=<span class="c-tok-str">""</span>, flush=<span class="c-tok-str">True</span>)</pre>
+    <p>Use streaming for any UI surface — perceived latency drops to near-zero. The Node SDK has an equivalent async iterator.</p>
+  </section>
+
+  <section id="pricing">
+    <h2>13. Pricing &amp; rate limits</h2>
+    <table>
+      <thead><tr><th>Model</th><th>Input ($/M tok)</th><th>Output ($/M tok)</th><th>Cache write</th><th>Cache read</th></tr></thead>
+      <tbody>
+        <tr><td>Opus 4.7</td><td>~$15</td><td>~$75</td><td>+25%</td><td>−90%</td></tr>
+        <tr><td>Sonnet 4.6</td><td>~$3</td><td>~$15</td><td>+25%</td><td>−90%</td></tr>
+        <tr><td>Haiku 4.5</td><td>~$1</td><td>~$5</td><td>+25%</td><td>−90%</td></tr>
+      </tbody>
+    </table>
+    <p class="muted small">Indicative pricing — confirm at <a href="https://www.anthropic.com/pricing" target="_blank" rel="noopener">anthropic.com/pricing</a>.</p>
+    <h3>Rate limits</h3>
+    <p>Tiered. You start at Tier 1 (low) and auto-promote as you spend. Check Settings → Limits in the console. If you're hitting limits hard, contact sales for Tier 4+.</p>
+  </section>
+
+  <section id="patterns">
+    <h2>14. Production patterns</h2>
+    <ul>
+      <li><strong>Cache the system prompt aggressively.</strong> The single biggest win for any RAG-style app.</li>
+      <li><strong>Use Haiku for routing</strong>, Sonnet for execution, Opus only for the hard cases. Three-tier setups are normal.</li>
+      <li><strong>Always set <code>max_tokens</code></strong>. Without it, runaway generations can rack up bills.</li>
+      <li><strong>Stream when you can.</strong> Even backend-to-backend, streaming lets you start downstream work earlier.</li>
+      <li><strong>Use the Batch API</strong> for any non-interactive bulk workload — half the cost, same quality.</li>
+      <li><strong>Tool definitions are prompts.</strong> Spend time on schemas; you'll get fewer wrong calls.</li>
+      <li><strong>Log <code>usage</code></strong> on every response. You need this data for cost reporting and to tune caching.</li>
+      <li><strong>Handle <code>overloaded_error</code></strong> with retry + jitter. Anthropic publishes a status page; subscribe.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <strong>Claude Pro Guide</strong>
+      </div>
+      <p>The unofficial pro reference for working with Claude — skills, MCP, plugins, hooks, the API, and the 4.x models, covered end to end.</p>
+      <div class="footer-social">
+        <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener" aria-label="anthropics/skills on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.7-5.5 6 .5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        </a>
+        <a href="https://docs.claude.com" target="_blank" rel="noopener" aria-label="Claude documentation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        </a>
+        <a href="https://console.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic API console">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </a>
+        <a href="https://www.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="directory.html">Skills directory</a>
+      <a href="mcp.html">MCP</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="api.html">API</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Reference</h4>
+      <a href="commands.html">Slash commands</a>
+      <a href="hooks.html">Hooks</a>
+      <a href="models.html">Models</a>
+      <a href="guide.html">How skills work</a>
+      <a href="create.html">Build a skill</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com<span class="ext">↗</span></a>
+      <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">anthropics/skills<span class="ext">↗</span></a>
+      <a href="https://console.anthropic.com" target="_blank" rel="noopener">API console<span class="ext">↗</span></a>
+      <a href="https://www.anthropic.com" target="_blank" rel="noopener">Anthropic<span class="ext">↗</span></a>
+      <a href="https://github.com/topics/claude-skills" target="_blank" rel="noopener">Community skills<span class="ext">↗</span></a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <div class="footer-meta">
+      <span>© 2026 Claude Pro Guide</span>
+      <span class="sep"></span>
+      <span>Unofficial community resource</span>
+      <span class="sep"></span>
+      <span>Not affiliated with Anthropic</span>
+    </div>
+    <a class="footer-back-top" href="#top">Back to top
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </a>
+  </div>
+</footer>
+
+<button class="fab" id="fab" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-label="Search">
+  <div class="palette">
+    <div class="palette-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <label for="palette-input" class="sr-only">Search skills</label>
+      <input id="palette-input" type="text" placeholder="Search 101 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
+      <span class="esc">esc</span>
+    </div>
+    <div class="palette-results" id="palette-results"></div>
+  </div>
+</div>
+
+<script src="skills-data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

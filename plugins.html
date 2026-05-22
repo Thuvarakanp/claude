@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Plugins — Claude Pro Guide</title>
+<meta name="description" content="Claude Code plugins: what they are, how the marketplace works, the ones every team should install, and how to author your own." />
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div class="scroll-progress"></div>
+
+<header class="topbar">
+  <div class="container nav">
+    <a href="index.html" class="brand"><span class="brand-text">Claude Pro Guide</span></a>
+    <nav class="nav-links">
+      <a href="quickstart.html"><span>Quickstart</span></a>
+      <a href="directory.html"><span>Skills</span></a>
+      <a href="mcp.html"><span>MCP</span></a>
+      <a href="plugins.html" class="active"><span>Plugins</span></a>
+      <a href="api.html"><span>API</span></a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="kbd-hint" data-palette-trigger aria-label="Search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Search <kbd>⌘K</kbd>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
+      <a class="cta" href="quickstart.html">Get Started →</a>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer" id="mobile-drawer">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="directory.html">Skills</a>
+    <a href="mcp.html">MCP</a>
+    <a href="plugins.html" class="active">Plugins</a>
+    <a href="api.html">API</a>
+    <a href="commands.html">Commands</a>
+    <a href="hooks.html">Hooks</a>
+    <a href="models.html">Models</a>
+  </nav>
+</div>
+
+<main class="container install-page">
+  <h1>Plugins</h1>
+  <p class="lede">A plugin is a Claude Code package that bundles related capability into one install. Skills, slash commands, hooks, and MCP servers — together. One <code>claude plugin install</code> and your terminal gets a new superpower.</p>
+
+  <div class="toc">
+    <h4>On this page</h4>
+    <ul>
+      <li><a href="#what">1. What a plugin is</a></li>
+      <li><a href="#vs">2. Plugin vs Skill vs MCP vs Command</a></li>
+      <li><a href="#install">3. Installing plugins</a></li>
+      <li><a href="#essentials">4. The essentials</a></li>
+      <li><a href="#dev">5. Developer plugins</a></li>
+      <li><a href="#workflow">6. Workflow plugins</a></li>
+      <li><a href="#qa">7. Quality / review plugins</a></li>
+      <li><a href="#build">8. Build your own plugin</a></li>
+      <li><a href="#publish">9. Publishing to the marketplace</a></li>
+    </ul>
+  </div>
+
+  <section id="what">
+    <h2>1. What a plugin is</h2>
+    <p>A plugin is a folder (usually a git repo) with a <code>plugin.json</code> manifest and any combination of:</p>
+    <ul>
+      <li><code>skills/</code> — one or more skill folders</li>
+      <li><code>commands/</code> — slash command files</li>
+      <li><code>hooks/</code> — hook configurations</li>
+      <li><code>mcp/</code> — MCP server configs</li>
+      <li><code>agents/</code> — custom subagent definitions</li>
+    </ul>
+    <p>When you install the plugin, all these pieces register at once. Uninstall and they all leave together — no orphan files.</p>
+  </section>
+
+  <section id="vs">
+    <h2>2. Plugin vs Skill vs MCP vs Command</h2>
+    <table>
+      <thead><tr><th>Concept</th><th>What it is</th><th>When you reach for it</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Skill</strong></td><td>A folder of instructions Claude loads when its description matches the user's prompt.</td><td>You want a capability that triggers automatically based on the conversation.</td></tr>
+        <tr><td><strong>Slash command</strong></td><td>A reusable prompt template invoked by typing <code>/name</code>.</td><td>You want a shortcut the human types deliberately.</td></tr>
+        <tr><td><strong>MCP server</strong></td><td>A long-running process exposing tools/resources.</td><td>You want Claude to talk to an external system (DB, API, hardware).</td></tr>
+        <tr><td><strong>Hook</strong></td><td>A shell command Claude runs on tool events.</td><td>You want automation around tool use (format on save, notify on stop).</td></tr>
+        <tr><td><strong>Plugin</strong></td><td>A bundle of the above, distributed as one unit.</td><td>You want all four to ship and version together.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="install">
+    <h2>3. Installing plugins</h2>
+
+    <h3>Marketplace install</h3>
+<pre><span class="c-tok-com"># browse</span>
+claude plugin list
+
+<span class="c-tok-com"># install</span>
+claude plugin install playwright
+claude plugin install awesome-claude-code-tools
+
+<span class="c-tok-com"># add a third-party marketplace (org/repo on GitHub)</span>
+claude plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill</pre>
+
+    <h3>Local install (during development)</h3>
+<pre>claude plugin install /path/to/local/plugin</pre>
+
+    <h3>List, update, remove</h3>
+<pre>claude plugin list           <span class="c-tok-com"># what's installed</span>
+claude plugin update &lt;name&gt;  <span class="c-tok-com"># pull the latest</span>
+claude plugin remove &lt;name&gt;</pre>
+
+    <p>Installed plugins live at <code>~/.claude/plugins/</code>. Their skills/commands/hooks/MCPs are auto-loaded on the next session.</p>
+  </section>
+
+  <section id="essentials">
+    <h2>4. The essentials</h2>
+    <table>
+      <thead><tr><th>Plugin</th><th>What it bundles</th><th>Why install</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>anthropic-skills</strong></td>
+          <td>The full set of official skills (PDF, Word, Excel, PowerPoint, web-design, MCP-builder, skill-creator).</td>
+          <td>Day-one productivity. One install, everything official.</td>
+        </tr>
+        <tr>
+          <td><strong>playwright</strong></td>
+          <td>Browser-test skill + Playwright MCP server + slash command <code>/test-browser</code>.</td>
+          <td>End-to-end browser testing from chat.</td>
+        </tr>
+        <tr>
+          <td><strong>github-tools</strong></td>
+          <td>GitHub MCP + skills for PR review, issue triage, release notes + commands like <code>/open-pr</code>, <code>/babysit-prs</code>.</td>
+          <td>Most of your team's repo ops, scripted.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="dev">
+    <h2>5. Developer plugins</h2>
+    <table>
+      <thead><tr><th>Plugin</th><th>Bundles</th></tr></thead>
+      <tbody>
+        <tr><td><strong>postgres-tools</strong></td><td>Postgres MCP + <code>sql-explainer</code> skill + <code>/explain-query</code> command.</td></tr>
+        <tr><td><strong>k8s-ops</strong></td><td>Kubernetes MCP + <code>k8s-debug</code> skill + <code>/triage</code> command for pod incidents.</td></tr>
+        <tr><td><strong>aws-toolkit</strong></td><td>Read-only AWS MCP + <code>aws-cost-audit</code> skill + slash commands for common CLI calls.</td></tr>
+        <tr><td><strong>terraform-pro</strong></td><td>Plan review skill + state-inspection MCP + drift detection command.</td></tr>
+        <tr><td><strong>rust-tools</strong></td><td>Cargo helpers, clippy interpretation, suggested fixes.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="workflow">
+    <h2>6. Workflow plugins</h2>
+    <table>
+      <thead><tr><th>Plugin</th><th>Bundles</th></tr></thead>
+      <tbody>
+        <tr><td><strong>standup</strong></td><td><code>/standup</code> command that reads your git activity + Linear tickets and drafts a status update.</td></tr>
+        <tr><td><strong>release-train</strong></td><td>Skills for changelog, semver bump, release-notes draft + <code>/cut-release</code> command.</td></tr>
+        <tr><td><strong>incident-toolkit</strong></td><td>Sentry MCP + Grafana MCP + post-incident report skill + Slack notify hooks.</td></tr>
+        <tr><td><strong>spec-to-pr</strong></td><td>End-to-end: spec doc → branch → scaffolded files → tests → draft PR.</td></tr>
+        <tr><td><strong>doc-writer</strong></td><td>README generator, OpenAPI generator, code-to-docs sync.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="qa">
+    <h2>7. Quality / review plugins</h2>
+    <table>
+      <thead><tr><th>Plugin</th><th>Bundles</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ultrareview</strong></td><td>Multi-agent code review (correctness, security, design, perf, tests) on a branch or PR. Triggered with <code>/ultrareview</code>.</td></tr>
+        <tr><td><strong>a11y-pro</strong></td><td>axe-core MCP + accessibility-review skill + WCAG checklist command.</td></tr>
+        <tr><td><strong>perf-doctor</strong></td><td>Lighthouse MCP + perf-audit skill + <code>/perf</code> command.</td></tr>
+        <tr><td><strong>test-coach</strong></td><td>Coverage analysis + test-writing skills (Jest/pytest/Go) + <code>/test-this</code> command.</td></tr>
+        <tr><td><strong>secret-scanner</strong></td><td>Pre-commit hook + skill that flags secrets / PII before they're ever staged.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="build">
+    <h2>8. Build your own plugin</h2>
+
+    <h3>Scaffold</h3>
+<pre>npx create-claude-plugin my-plugin
+cd my-plugin</pre>
+
+    <h3>Folder layout</h3>
+<pre>my-plugin/
+├── plugin.json
+├── skills/
+│   └── my-skill/
+│       └── SKILL.md
+├── commands/
+│   └── do-thing.md
+├── hooks/
+│   └── format-on-edit.json
+├── mcp/
+│   └── server.json
+└── README.md</pre>
+
+    <h3>plugin.json</h3>
+<pre>{
+  <span class="c-tok-str">"name"</span>: <span class="c-tok-str">"my-plugin"</span>,
+  <span class="c-tok-str">"version"</span>: <span class="c-tok-str">"0.1.0"</span>,
+  <span class="c-tok-str">"description"</span>: <span class="c-tok-str">"What this plugin does, in one sentence."</span>,
+  <span class="c-tok-str">"author"</span>: <span class="c-tok-str">"you"</span>,
+  <span class="c-tok-str">"license"</span>: <span class="c-tok-str">"MIT"</span>,
+  <span class="c-tok-str">"repository"</span>: <span class="c-tok-str">"https://github.com/you/my-plugin"</span>,
+  <span class="c-tok-str">"components"</span>: {
+    <span class="c-tok-str">"skills"</span>:  [<span class="c-tok-str">"skills/my-skill"</span>],
+    <span class="c-tok-str">"commands"</span>:[<span class="c-tok-str">"commands/do-thing.md"</span>],
+    <span class="c-tok-str">"hooks"</span>:   [<span class="c-tok-str">"hooks/format-on-edit.json"</span>],
+    <span class="c-tok-str">"mcp"</span>:     [<span class="c-tok-str">"mcp/server.json"</span>]
+  }
+}</pre>
+
+    <h3>Test locally</h3>
+<pre>claude plugin install .</pre>
+    <p>Iterate: edit, restart a Claude Code session, repeat.</p>
+  </section>
+
+  <section id="publish">
+    <h2>9. Publishing to the marketplace</h2>
+    <ol>
+      <li>Push to a public GitHub repo. The repo root must contain <code>plugin.json</code>.</li>
+      <li>Tag a release: <code>git tag v0.1.0 &amp;&amp; git push --tags</code>.</li>
+      <li>Submit to a marketplace — Anthropic's official one or a community one — by opening a PR adding your repo to its index.</li>
+      <li>Once accepted, users install with <code>claude plugin install your-name@marketplace</code>.</li>
+    </ol>
+    <div class="callout"><strong>Versioning matters.</strong> Use semver. A plugin that changes skill descriptions or removes commands is a breaking change. Bump the major version and document it in the release notes.</div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <strong>Claude Pro Guide</strong>
+      </div>
+      <p>The unofficial pro reference for working with Claude — skills, MCP, plugins, hooks, the API, and the 4.x models, covered end to end.</p>
+      <div class="footer-social">
+        <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener" aria-label="anthropics/skills on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.7-5.5 6 .5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        </a>
+        <a href="https://docs.claude.com" target="_blank" rel="noopener" aria-label="Claude documentation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        </a>
+        <a href="https://console.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic API console">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </a>
+        <a href="https://www.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="directory.html">Skills directory</a>
+      <a href="mcp.html">MCP</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="api.html">API</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Reference</h4>
+      <a href="commands.html">Slash commands</a>
+      <a href="hooks.html">Hooks</a>
+      <a href="models.html">Models</a>
+      <a href="guide.html">How skills work</a>
+      <a href="create.html">Build a skill</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com<span class="ext">↗</span></a>
+      <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">anthropics/skills<span class="ext">↗</span></a>
+      <a href="https://console.anthropic.com" target="_blank" rel="noopener">API console<span class="ext">↗</span></a>
+      <a href="https://www.anthropic.com" target="_blank" rel="noopener">Anthropic<span class="ext">↗</span></a>
+      <a href="https://github.com/topics/claude-skills" target="_blank" rel="noopener">Community skills<span class="ext">↗</span></a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <div class="footer-meta">
+      <span>© 2026 Claude Pro Guide</span>
+      <span class="sep"></span>
+      <span>Unofficial community resource</span>
+      <span class="sep"></span>
+      <span>Not affiliated with Anthropic</span>
+    </div>
+    <a class="footer-back-top" href="#top">Back to top
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </a>
+  </div>
+</footer>
+
+<button class="fab" id="fab" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-label="Search">
+  <div class="palette">
+    <div class="palette-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <label for="palette-input" class="sr-only">Search skills</label>
+      <input id="palette-input" type="text" placeholder="Search 101 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
+      <span class="esc">esc</span>
+    </div>
+    <div class="palette-results" id="palette-results"></div>
+  </div>
+</div>
+
+<script src="skills-data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MCP — Model Context Protocol — Claude Pro Guide</title>
+<meta name="description" content="MCP from scratch: what it is, why it matters, how to install servers, the most useful ones to plug into Claude, and how to build your own." />
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div class="scroll-progress"></div>
+
+<header class="topbar">
+  <div class="container nav">
+    <a href="index.html" class="brand"><span class="brand-text">Claude Pro Guide</span></a>
+    <nav class="nav-links">
+      <a href="quickstart.html"><span>Quickstart</span></a>
+      <a href="directory.html"><span>Skills</span></a>
+      <a href="mcp.html" class="active"><span>MCP</span></a>
+      <a href="plugins.html"><span>Plugins</span></a>
+      <a href="api.html"><span>API</span></a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="kbd-hint" data-palette-trigger aria-label="Search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Search <kbd>⌘K</kbd>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
+      <a class="cta" href="quickstart.html">Get Started →</a>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer" id="mobile-drawer">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="directory.html">Skills</a>
+    <a href="mcp.html" class="active">MCP</a>
+    <a href="plugins.html">Plugins</a>
+    <a href="api.html">API</a>
+    <a href="commands.html">Commands</a>
+    <a href="hooks.html">Hooks</a>
+    <a href="models.html">Models</a>
+  </nav>
+</div>
+
+<main class="container install-page">
+  <h1>MCP — Model Context Protocol</h1>
+  <p class="lede">MCP is the open standard that lets Claude talk to anything — your database, GitHub, Linear, Slack, Figma, even your own internal tools. Think of it as USB-C for AI: one protocol, many adapters. This page covers what it is, how to install servers, the ones every pro uses, and how to build your own.</p>
+
+  <div class="toc">
+    <h4>On this page</h4>
+    <ul>
+      <li><a href="#what">1. What MCP is (and isn't)</a></li>
+      <li><a href="#how">2. How an MCP server works</a></li>
+      <li><a href="#install">3. Installing servers in Claude Code</a></li>
+      <li><a href="#install-claudeai">4. Installing in claude.ai</a></li>
+      <li><a href="#essentials">5. The essentials (install these first)</a></li>
+      <li><a href="#dev">6. Developer-focused servers</a></li>
+      <li><a href="#productivity">7. Productivity &amp; team tools</a></li>
+      <li><a href="#data">8. Data &amp; analytics</a></li>
+      <li><a href="#design">9. Design tools</a></li>
+      <li><a href="#build">10. Build your own MCP server</a></li>
+      <li><a href="#security">11. Security &amp; trust</a></li>
+    </ul>
+  </div>
+
+  <section id="what">
+    <h2>1. What MCP is (and isn't)</h2>
+    <p>MCP is a JSON-RPC-based protocol Claude speaks to external processes. Those processes (called <em>servers</em>) expose three things:</p>
+    <ul>
+      <li><strong>Tools</strong> — functions Claude can call (e.g., <code>github.create_pr</code>, <code>postgres.query</code>).</li>
+      <li><strong>Resources</strong> — data Claude can read (a file, a row, a doc).</li>
+      <li><strong>Prompts</strong> — pre-baked prompt templates the server suggests.</li>
+    </ul>
+    <p>Most servers focus on <strong>tools</strong>. That's where the action is.</p>
+    <div class="callout info"><strong>MCP vs Skills vs Plugins.</strong> Skills are folders of instructions; MCP servers are running processes; Plugins are Claude Code packages that often bundle slash commands, hooks, AND MCP servers in one. See <a href="plugins.html">Plugins</a> for the comparison table.</div>
+  </section>
+
+  <section id="how">
+    <h2>2. How an MCP server works</h2>
+    <p>An MCP server is just a program that speaks the protocol on one of two transports:</p>
+    <ul>
+      <li><strong>stdio</strong> — Claude spawns the process and pipes JSON-RPC over stdin/stdout. Most local servers.</li>
+      <li><strong>HTTP / SSE</strong> — the server runs as a web service; Claude connects over the network. Used for shared servers and connectors on claude.ai.</li>
+    </ul>
+    <p>When you connect a server, Claude reads its tool list at startup and can then call any of those tools mid-conversation — same as the built-in Bash, Read, Edit tools.</p>
+  </section>
+
+  <section id="install">
+    <h2>3. Installing servers in Claude Code</h2>
+
+    <h3>One-line install</h3>
+<pre><span class="c-tok-com"># official Postgres server</span>
+claude mcp add postgres @modelcontextprotocol/server-postgres \
+  --env POSTGRES_URL=<span class="c-tok-str">"postgres://localhost/mydb"</span>
+
+<span class="c-tok-com"># GitHub</span>
+claude mcp add github @modelcontextprotocol/server-github \
+  --env GITHUB_TOKEN=<span class="c-tok-str">"ghp_..."</span></pre>
+
+    <h3>Manual configuration</h3>
+    <p>Edit <code>~/.claude/mcp.json</code> (or the project-level <code>.mcp.json</code>):</p>
+<pre>{
+  <span class="c-tok-str">"mcpServers"</span>: {
+    <span class="c-tok-str">"postgres"</span>: {
+      <span class="c-tok-str">"command"</span>: <span class="c-tok-str">"npx"</span>,
+      <span class="c-tok-str">"args"</span>: [<span class="c-tok-str">"-y"</span>, <span class="c-tok-str">"@modelcontextprotocol/server-postgres"</span>],
+      <span class="c-tok-str">"env"</span>: {
+        <span class="c-tok-str">"POSTGRES_URL"</span>: <span class="c-tok-str">"postgres://localhost/mydb"</span>
+      }
+    },
+    <span class="c-tok-str">"github"</span>: {
+      <span class="c-tok-str">"command"</span>: <span class="c-tok-str">"npx"</span>,
+      <span class="c-tok-str">"args"</span>: [<span class="c-tok-str">"-y"</span>, <span class="c-tok-str">"@modelcontextprotocol/server-github"</span>],
+      <span class="c-tok-str">"env"</span>: { <span class="c-tok-str">"GITHUB_TOKEN"</span>: <span class="c-tok-str">"ghp_..."</span> }
+    }
+  }
+}</pre>
+
+    <h3>Verify</h3>
+<pre>claude mcp list</pre>
+    <p>Each connected server shows up with its tool count. Inside Claude Code, you can also run <code>/mcp list</code>.</p>
+
+    <h3>User-scope vs project-scope</h3>
+    <table>
+      <thead><tr><th>Scope</th><th>File</th><th>Best for</th></tr></thead>
+      <tbody>
+        <tr><td>User</td><td><code>~/.claude/mcp.json</code></td><td>Personal connections (your GitHub token, your Slack)</td></tr>
+        <tr><td>Project</td><td><code>.mcp.json</code> (in repo)</td><td>Team-shared connections — staging DB, internal API. Commit safely if no secrets are inline (use env-var references).</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="install-claudeai">
+    <h2>4. Installing in claude.ai</h2>
+    <p>On claude.ai, MCP servers are surfaced as <strong>Connectors</strong>.</p>
+    <ol>
+      <li>Settings → Connectors.</li>
+      <li>Browse the catalog (Google Drive, Calendar, GitHub, Linear, Notion, Figma, etc.) or <em>Add custom connector</em> with an HTTP/SSE endpoint.</li>
+      <li>Authenticate (usually OAuth). Toggle the connector on per chat from the paper-clip menu.</li>
+    </ol>
+    <div class="callout warn"><strong>Connectors run server-side.</strong> Your data flows through Anthropic. For local-only workflows (private DBs, secret APIs), use Claude Code's local <code>stdio</code> servers instead.</div>
+  </section>
+
+  <section id="essentials">
+    <h2>5. The essentials (install these first)</h2>
+    <p>Three servers cover 80% of pro workflows.</p>
+    <table>
+      <thead><tr><th>Server</th><th>What it does</th><th>Install</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>GitHub</strong></td>
+          <td>Open / merge PRs, read issues, search code across all your repos, post review comments.</td>
+          <td><code>claude mcp add github @modelcontextprotocol/server-github</code></td>
+        </tr>
+        <tr>
+          <td><strong>Filesystem</strong></td>
+          <td>Read/write outside the current project — e.g., your scratch dir, dotfiles, downloads.</td>
+          <td><code>claude mcp add fs @modelcontextprotocol/server-filesystem ~/scratch</code></td>
+        </tr>
+        <tr>
+          <td><strong>Fetch</strong></td>
+          <td>HTTP GETs with HTML-to-markdown conversion. Lets Claude read docs pages, blog posts, anything.</td>
+          <td><code>claude mcp add fetch @modelcontextprotocol/server-fetch</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="dev">
+    <h2>6. Developer-focused servers</h2>
+    <table>
+      <thead><tr><th>Server</th><th>What you get</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Postgres</strong></td><td>Read-only SQL with schema introspection, EXPLAIN ANALYZE, sampled queries. Crucial for debugging.</td></tr>
+        <tr><td><strong>SQLite</strong></td><td>Same as Postgres but for local .sqlite/.db files. Great for Chrome history, app local DBs.</td></tr>
+        <tr><td><strong>Playwright</strong></td><td>Drives a real browser. Pairs with the built-in <code>verify</code> skill — Claude can navigate, click, screenshot, assert.</td></tr>
+        <tr><td><strong>Puppeteer</strong></td><td>Lighter alternative to Playwright when you just need a screenshot or to scrape SSR pages.</td></tr>
+        <tr><td><strong>Sentry</strong></td><td>Pull issues + stack traces, group similar errors, jump from a stack frame to source via the GitHub MCP.</td></tr>
+        <tr><td><strong>Cloudflare</strong></td><td>Workers, KV, R2, D1. Deploy and manage from chat.</td></tr>
+        <tr><td><strong>AWS</strong></td><td>Read-only describe-* calls for EC2/S3/RDS/Lambda/CloudWatch. Useful for triage.</td></tr>
+        <tr><td><strong>Kubernetes</strong></td><td><code>kubectl</code> behind a safety layer — get pods, describe, logs, rollout status.</td></tr>
+        <tr><td><strong>Git</strong></td><td>Beyond what's in the Bash tool: log search, blame, branch ops with structured output.</td></tr>
+        <tr><td><strong>Docker</strong></td><td>List containers/images, exec, logs, inspect.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="productivity">
+    <h2>7. Productivity &amp; team tools</h2>
+    <table>
+      <thead><tr><th>Server</th><th>What you get</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Linear</strong></td><td>Pull tickets, update status, post comments, link branches. Pairs with the <code>linear-triage</code> skill.</td></tr>
+        <tr><td><strong>Jira</strong></td><td>Same idea, JQL searches.</td></tr>
+        <tr><td><strong>Slack</strong></td><td>Search history, post messages, react, start threads. Heavy permissions — scope the bot token carefully.</td></tr>
+        <tr><td><strong>Notion</strong></td><td>Read/write pages, query databases, set properties.</td></tr>
+        <tr><td><strong>Google Drive</strong></td><td>Search docs, sheets, slides. Surfaces meeting notes you forgot you had.</td></tr>
+        <tr><td><strong>Google Calendar</strong></td><td>Free/busy, schedule with attendees, recurring events.</td></tr>
+        <tr><td><strong>Gmail</strong></td><td>Search and draft (sending requires explicit confirmation).</td></tr>
+        <tr><td><strong>Asana / ClickUp</strong></td><td>Task ops, project queries.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="data">
+    <h2>8. Data &amp; analytics</h2>
+    <table>
+      <thead><tr><th>Server</th><th>What you get</th></tr></thead>
+      <tbody>
+        <tr><td><strong>BigQuery</strong></td><td>Run analytical SQL with dataset introspection, dry-run costing.</td></tr>
+        <tr><td><strong>Snowflake</strong></td><td>Same idea, multi-warehouse aware.</td></tr>
+        <tr><td><strong>Stripe</strong></td><td>Lookup customers, subscriptions, refunds. Write actions require confirmation.</td></tr>
+        <tr><td><strong>PostHog</strong></td><td>Query events, funnels, feature flags from chat.</td></tr>
+        <tr><td><strong>Grafana</strong></td><td>Query metrics, get dashboard snapshots when debugging.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="design">
+    <h2>9. Design tools</h2>
+    <table>
+      <thead><tr><th>Server</th><th>What you get</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Figma (official)</strong></td><td>Two-way bridge. Read designs into code, push code into Figma, manage design systems, Code Connect mappings. Pairs with the official <code>figma-*</code> skills.</td></tr>
+        <tr><td><strong>FigJam</strong></td><td>Whiteboard ops — sticky notes, diagrams, retros.</td></tr>
+        <tr><td><strong>Framer</strong></td><td>Push designs into Framer projects.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="build">
+    <h2>10. Build your own MCP server</h2>
+    <p>The fastest path is the official TypeScript SDK. Five-minute "hello tool":</p>
+<pre>npm create mcp-server@latest my-server
+cd my-server
+npm install</pre>
+
+<pre><span class="c-tok-com">// src/index.ts</span>
+<span class="c-tok-key">import</span> { McpServer } <span class="c-tok-key">from</span> <span class="c-tok-str">"@modelcontextprotocol/sdk/server/mcp.js"</span>;
+<span class="c-tok-key">import</span> { StdioServerTransport } <span class="c-tok-key">from</span> <span class="c-tok-str">"@modelcontextprotocol/sdk/server/stdio.js"</span>;
+<span class="c-tok-key">import</span> { z } <span class="c-tok-key">from</span> <span class="c-tok-str">"zod"</span>;
+
+<span class="c-tok-key">const</span> server = <span class="c-tok-key">new</span> McpServer({ name: <span class="c-tok-str">"my-server"</span>, version: <span class="c-tok-str">"0.1.0"</span> });
+
+server.tool(
+  <span class="c-tok-str">"current-weather"</span>,
+  <span class="c-tok-str">"Return the current weather for a city."</span>,
+  { city: z.string() },
+  <span class="c-tok-key">async</span> ({ city }) =&gt; ({
+    content: [{ type: <span class="c-tok-str">"text"</span>, text: <span class="c-tok-str">`It's 72°F and sunny in ${city}.`</span> }],
+  })
+);
+
+<span class="c-tok-key">await</span> server.connect(<span class="c-tok-key">new</span> StdioServerTransport());</pre>
+
+    <p>Build and connect:</p>
+<pre>npm run build
+claude mcp add my-server node /absolute/path/to/dist/index.js</pre>
+
+    <p>Now your tool is callable from any Claude Code session. Pro patterns:</p>
+    <ul>
+      <li><strong>Validate inputs with zod</strong> — schemas double as the tool documentation Claude sees.</li>
+      <li><strong>Return structured content</strong> when you can (text + JSON), not just stringified blobs.</li>
+      <li><strong>Read-by-default, write-on-confirm</strong> — for any destructive action, require an explicit <code>confirm: true</code> argument.</li>
+      <li><strong>Log to stderr, not stdout</strong> — stdout is the JSON-RPC channel. Logging to stdout breaks everything.</li>
+      <li><strong>Use HTTP transport</strong> when the server is shared (one process, many users).</li>
+    </ul>
+    <p>For the official scaffolder skill, install <a href="directory.html?slug=mcp-builder"><code>mcp-builder</code></a> and ask Claude to make you one in plain English.</p>
+  </section>
+
+  <section id="security">
+    <h2>11. Security &amp; trust</h2>
+    <div class="callout warn"><strong>An MCP server is code you're running.</strong> Apply normal supply-chain hygiene: prefer official Anthropic / modelcontextprotocol.io servers, pin versions, read what you install, scope tokens to least privilege.</div>
+    <ul>
+      <li>Use <strong>fine-grained tokens</strong>. GitHub: limit to specific repos. AWS: use a session token with a tight IAM policy. Stripe: restricted keys per use case.</li>
+      <li>Set <code>permissions.deny</code> in <code>settings.json</code> for any MCP tool that shouldn't be auto-callable in your environment.</li>
+      <li>For sensitive workflows, use <strong>project-scope MCP</strong> so the connection only loads in the relevant repo.</li>
+      <li>When the server is community-built, run it in a container or restricted user account.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <strong>Claude Pro Guide</strong>
+      </div>
+      <p>The unofficial pro reference for working with Claude — skills, MCP, plugins, hooks, the API, and the 4.x models, covered end to end.</p>
+      <div class="footer-social">
+        <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener" aria-label="anthropics/skills on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.7-5.5 6 .5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        </a>
+        <a href="https://docs.claude.com" target="_blank" rel="noopener" aria-label="Claude documentation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        </a>
+        <a href="https://console.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic API console">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </a>
+        <a href="https://www.anthropic.com" target="_blank" rel="noopener" aria-label="Anthropic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="directory.html">Skills directory</a>
+      <a href="mcp.html">MCP</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="api.html">API</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Reference</h4>
+      <a href="commands.html">Slash commands</a>
+      <a href="hooks.html">Hooks</a>
+      <a href="models.html">Models</a>
+      <a href="guide.html">How skills work</a>
+      <a href="create.html">Build a skill</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com<span class="ext">↗</span></a>
+      <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">anthropics/skills<span class="ext">↗</span></a>
+      <a href="https://console.anthropic.com" target="_blank" rel="noopener">API console<span class="ext">↗</span></a>
+      <a href="https://www.anthropic.com" target="_blank" rel="noopener">Anthropic<span class="ext">↗</span></a>
+      <a href="https://github.com/topics/claude-skills" target="_blank" rel="noopener">Community skills<span class="ext">↗</span></a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <div class="footer-meta">
+      <span>© 2026 Claude Pro Guide</span>
+      <span class="sep"></span>
+      <span>Unofficial community resource</span>
+      <span class="sep"></span>
+      <span>Not affiliated with Anthropic</span>
+    </div>
+    <a class="footer-back-top" href="#top">Back to top
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </a>
+  </div>
+</footer>
+
+<button class="fab" id="fab" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<div class="palette-backdrop" id="palette-backdrop" role="dialog" aria-label="Search">
+  <div class="palette">
+    <div class="palette-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <label for="palette-input" class="sr-only">Search skills</label>
+      <input id="palette-input" type="text" placeholder="Search 101 skills — name, trigger, description…" aria-label="Search skills" autocomplete="off" />
+      <span class="esc">esc</span>
+    </div>
+    <div class="palette-results" id="palette-results"></div>
+  </div>
+</div>
+
+<script src="skills-data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
