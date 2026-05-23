@@ -69,6 +69,92 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script type="application/ld+json" data-extra="0">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a Claude Agent Skill?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A skill is a folder containing a SKILL.md file (YAML frontmatter + markdown body) plus optional scripts and reference files. Claude loads the skill on demand when a user's prompt matches its description — extending what Claude can do without bloating every prompt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where do I put my Claude skills?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "User-scope skills go in ~/.claude/skills/<skill-name>/. Project-scope skills go in .claude/skills/ inside the repo. Claude Code auto-discovers both at session start. For claude.ai, upload skills via Settings → Capabilities → Skills."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is MCP (Model Context Protocol)?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MCP is the open JSON-RPC protocol Claude uses to talk to external systems — databases, APIs, your own tools. You install MCP servers (Postgres, GitHub, Slack, Figma, etc.) and Claude can call their tools mid-conversation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which Claude model should I use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Default to Claude Sonnet 4.6 — strong, fast, ~5× cheaper than Opus. Use Claude Opus 4.7 for hard reasoning, large refactors, and multi-step plans. Use Claude Haiku 4.5 for high-volume routing and classification."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I install Claude Code?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run npm install -g @anthropic-ai/claude-code, then claude in your project. Sign in with claude.ai (subscription) or an API key. Full setup walkthrough in the Quickstart guide."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the difference between a skill, a slash command, and an MCP server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Skills trigger automatically from natural-language matching. Slash commands are user-typed shortcuts (/review). MCP servers are long-running processes that expose tools Claude can call. They layer together."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does prompt caching reduce API costs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Mark a stable prompt prefix with cache_control type ephemeral and cache hits within 5 minutes are ~90% cheaper. Heavy users see the cache extend for hours."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is ClaudeBro affiliated with Anthropic?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. ClaudeBro is an unofficial community resource. All Claude trademarks and skill names belong to their respective owners. Official documentation lives at docs.claude.com."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json" data-extra="1">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://claudebro.xyz/"
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -337,6 +423,50 @@ client.beta.messages.create(
         <a class="link" href="install.html#plugins">Plugin install guide →</a>
       </div>
     </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="faq">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="label">FAQ</div>
+      <h2>Common questions</h2>
+      <p class="muted">Short answers to the questions people ask most often about Claude, skills, MCP, and the API.</p>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item reveal" data-delay="1">
+        <summary>What is a Claude Agent Skill?</summary>
+        <p>A skill is a folder containing a <code>SKILL.md</code> file (YAML frontmatter + markdown body) plus optional scripts and reference files. Claude loads the skill on demand when a user's prompt matches its description — extending what Claude can do without bloating every prompt. See the <a href="guide.html">concept guide</a>.</p>
+      </details>
+      <details class="faq-item reveal" data-delay="2">
+        <summary>Where do I put my Claude skills?</summary>
+        <p>User-scope skills go in <code>~/.claude/skills/&lt;skill-name&gt;/</code>. Project-scope skills go in <code>.claude/skills/</code> inside the repo. Claude Code auto-discovers both at session start. For claude.ai, upload skills via Settings → Capabilities → Skills.</p>
+      </details>
+      <details class="faq-item reveal" data-delay="3">
+        <summary>What is MCP (Model Context Protocol)?</summary>
+        <p>MCP is the open JSON-RPC protocol Claude uses to talk to external systems — databases, APIs, your own tools. You install MCP servers (Postgres, GitHub, Slack, Figma, etc.) and Claude can call their tools mid-conversation. Read the <a href="mcp.html">MCP guide</a>.</p>
+      </details>
+      <details class="faq-item reveal" data-delay="4">
+        <summary>Which Claude model should I use?</summary>
+        <p>Default to <strong>Claude Sonnet 4.6</strong> — strong, fast, ~5× cheaper than Opus. Use <strong>Claude Opus 4.7</strong> for hard reasoning, large refactors, and multi-step plans. Use <strong>Claude Haiku 4.5</strong> for high-volume routing and classification. See the <a href="models.html">model comparison</a>.</p>
+      </details>
+      <details class="faq-item reveal" data-delay="5">
+        <summary>How do I install Claude Code?</summary>
+        <p>Run <code>npm install -g @anthropic-ai/claude-code</code>, then <code>claude</code> in your project. Sign in with claude.ai (subscription) or an API key. Full setup walkthrough in the <a href="quickstart.html">Quickstart</a>.</p>
+      </details>
+      <details class="faq-item reveal" data-delay="6">
+        <summary>What's the difference between a skill, a slash command, and an MCP server?</summary>
+        <p><strong>Skills</strong> trigger automatically from natural-language matching. <strong>Slash commands</strong> are user-typed shortcuts (<code>/review</code>). <strong>MCP servers</strong> are long-running processes that expose tools Claude can call. They layer together — skills can call MCP tools, slash commands can invoke skills.</p>
+      </details>
+      <details class="faq-item reveal" data-delay="7">
+        <summary>How does prompt caching reduce API costs?</summary>
+        <p>Mark a stable prompt prefix (system prompt, big context doc, tool definitions) with <code>cache_control: {"type": "ephemeral"}</code> and cache hits within 5 minutes are <strong>~90% cheaper</strong>. Heavy users see the cache extend for hours. See the <a href="api.html#caching">API caching guide</a>.</p>
+      </details>
+      <details class="faq-item reveal" data-delay="8">
+        <summary>Is ClaudeBro affiliated with Anthropic?</summary>
+        <p>No. ClaudeBro is an unofficial community resource. All Claude trademarks and skill names belong to their respective owners. Official documentation lives at <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com</a>.</p>
+      </details>
     </div>
   </div>
 </section>

@@ -1,0 +1,35 @@
+# ClaudeBro
+
+> The unofficial pro reference for working with Claude (Anthropic). Covers
+> Claude Agent Skills, MCP servers, Claude Code plugins, slash commands,
+> hooks, the Anthropic API, and the Claude 4.x model family (Opus 4.7,
+> Sonnet 4.6, Haiku 4.5).
+
+## Site
+
+- [Home](https://claudebro.xyz/): A-to-Z reference homepage with the 101-skill directory, install paths, and links to every guide.
+- [Quickstart](https://claudebro.xyz/quickstart.html): Install Claude Code, set up claude.ai, get an Anthropic API key, configure IDE extensions, and write a first CLAUDE.md.
+
+## Skills
+
+- [Skills Directory](https://claudebro.xyz/directory.html): Searchable index of 101 Claude Agent Skills across official, built-in, MCP, community, and experimental categories.
+- [How Skills Work](https://claudebro.xyz/guide.html): Progressive disclosure, frontmatter, allowed-tools, how triggers work, skill vs slash command vs MCP vs memory.
+- [Install Skills](https://claudebro.xyz/install.html): How to install Claude Agent Skills on Claude Code, claude.ai, the API, and via plugins/MCP.
+- [Build a Skill](https://claudebro.xyz/create.html): Step-by-step tutorial for building your first Claude Agent Skill.
+
+## Integrations
+
+- [MCP Guide](https://claudebro.xyz/mcp.html): What MCP is, how to install servers (Postgres, GitHub, Linear, Slack, Figma, Playwright), and how to build your own MCP server.
+- [Plugins](https://claudebro.xyz/plugins.html): Claude Code plugins explained, the marketplace, recommended plugins, and how to publish your own.
+- [Slash Commands](https://claudebro.xyz/commands.html): Every built-in slash command + how to write custom commands.
+- [Hooks](https://claudebro.xyz/hooks.html): Every hook event (PreToolUse, PostToolUse, Stop, etc.), matchers, and automation examples.
+
+## API
+
+- [API Guide](https://claudebro.xyz/api.html): Auth, prompt caching, extended thinking, tool use, vision, PDF input, files, batch (50% off), citations, computer use, pricing.
+- [Models](https://claudebro.xyz/models.html): Claude Opus 4.7, Sonnet 4.6, Haiku 4.5 compared — when to use which, pricing, context windows, decision flow.
+
+## Optional
+
+- [Sitemap](https://claudebro.xyz/sitemap.xml): XML sitemap of all pages.
+- [Author](https://claudebro.xyz/): Built by Thuvarakan Perinpanayagam.

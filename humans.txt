@@ -1,0 +1,12 @@
+/* TEAM */
+
+  Designer & Developer: Thuvarakan Perinpanayagam
+  Site:                 https://claudebro.xyz
+  Location:             Sri Lanka
+
+/* SITE */
+
+  Last update: 2026-05-22
+  Standards:   HTML5, CSS3, Vanilla JS
+  Components:  Custom (no framework)
+  Fonts:       Inter, JetBrains Mono
