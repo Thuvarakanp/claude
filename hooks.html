@@ -3,8 +3,60 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hooks — Claude Pro Guide</title>
-<meta name="description" content="Claude Code hooks: every event, the matchers, real-world example automations, and the security model." />
+<title>Claude Code Hooks — Events, matchers, automation examples | Pro Guide</title>
+<meta name="description" content="Complete hooks reference: PreToolUse, PostToolUse, Stop, SessionStart, UserPromptSubmit, and more. Six real-world hook recipes — format on save, notify on stop, block force-push, audit log." />
+<meta name="keywords" content="Claude Code hooks, PreToolUse, PostToolUse, Stop hook, settings.json hooks, format on save, automation" />
+<meta name="author" content="Thuvarakan Perinpanayagam" />
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+<meta name="theme-color" content="#0a0807" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#d97757" media="(prefers-color-scheme: light)" />
+<link rel="canonical" href="https://claudebro.xyz/hooks.html" />
+
+<!-- Favicons -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="alternate icon" type="image/png" href="/favicon.svg" />
+<link rel="apple-touch-icon" href="/favicon.svg" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="Claude Pro Guide" />
+<meta property="og:title" content="Claude Code Hooks — Events, matchers, automation examples | Pro Guide" />
+<meta property="og:description" content="Complete hooks reference: PreToolUse, PostToolUse, Stop, SessionStart, UserPromptSubmit, and more. Six real-world hook recipes — format on save, notify on stop, block force-push, audit log." />
+<meta property="og:url" content="https://claudebro.xyz/hooks.html" />
+<meta property="og:image" content="https://claudebro.xyz/og-image.svg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Claude Pro Guide — A-to-Z reference for Claude" />
+<meta property="og:locale" content="en_US" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Claude Code Hooks — Events, matchers, automation examples | Pro Guide" />
+<meta name="twitter:description" content="Complete hooks reference: PreToolUse, PostToolUse, Stop, SessionStart, UserPromptSubmit, and more. Six real-world hook recipes — format on save, notify on stop, block force-push, audit log." />
+<meta name="twitter:image" content="https://claudebro.xyz/og-image.svg" />
+<meta name="twitter:image:alt" content="Claude Pro Guide" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Claude Code Hooks",
+  "description": "Complete hooks reference: PreToolUse, PostToolUse, Stop, SessionStart, UserPromptSubmit, and more. Six real-world hook recipes — format on save, notify on stop, block force-push, audit log.",
+  "url": "https://claudebro.xyz/hooks.html",
+  "image": "https://claudebro.xyz/og-image.svg",
+  "author": {
+    "@type": "Person",
+    "name": "Thuvarakan Perinpanayagam"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Thuvarakan Perinpanayagam"
+  },
+  "datePublished": "2026-05-22",
+  "dateModified": "2026-05-22",
+  "inLanguage": "en-US"
+}
+</script>
 <link rel="stylesheet" href="styles.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

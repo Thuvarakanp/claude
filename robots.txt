@@ -1,0 +1,13 @@
+# robots.txt — Claude Pro Guide
+# Allow all well-behaved crawlers.
+
+User-agent: *
+Allow: /
+
+# Don't crawl development / build artifacts.
+Disallow: /.claude/
+Disallow: /.server.js
+Disallow: /node_modules/
+
+# Sitemap location.
+Sitemap: https://claudebro.xyz/sitemap.xml
