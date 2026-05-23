@@ -1,36 +1,75 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <radialGradient id="aurora1" cx="15%" cy="20%" r="60%">
-      <stop offset="0%" stop-color="#d97757" stop-opacity=".35"/>
+    <radialGradient id="aurora1" cx="15%" cy="25%" r="60%">
+      <stop offset="0%" stop-color="#d97757" stop-opacity=".40"/>
       <stop offset="100%" stop-color="#d97757" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="aurora2" cx="85%" cy="80%" r="55%">
-      <stop offset="0%" stop-color="#a87fd9" stop-opacity=".25"/>
+      <stop offset="0%" stop-color="#a87fd9" stop-opacity=".28"/>
       <stop offset="100%" stop-color="#a87fd9" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="aurora3" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#5ed3b4" stop-opacity=".10"/>
+      <stop offset="100%" stop-color="#5ed3b4" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="text-grad" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#d97757"/>
       <stop offset="50%" stop-color="#c75b96"/>
       <stop offset="100%" stop-color="#7e80f0"/>
     </linearGradient>
-    <radialGradient id="dot" cx="35%" cy="32%" r="70%">
-      <stop offset="0%" stop-color="#f0a07e"/>
-      <stop offset="60%" stop-color="#d97757"/>
-      <stop offset="100%" stop-color="#b15c3d"/>
+    <radialGradient id="bigface" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="#f5b692"/>
+      <stop offset="55%" stop-color="#d97757"/>
+      <stop offset="100%" stop-color="#a64f33"/>
+    </radialGradient>
+    <radialGradient id="bigblush" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff8a6e" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#ff8a6e" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
   <rect width="1200" height="630" fill="#0a0807"/>
   <rect width="1200" height="630" fill="url(#aurora1)"/>
   <rect width="1200" height="630" fill="url(#aurora2)"/>
+  <rect width="1200" height="630" fill="url(#aurora3)"/>
 
-  <g transform="translate(80,80)">
-    <circle cx="12" cy="14" r="11" fill="url(#dot)"/>
-    <text x="34" y="22" font-family="Inter,system-ui,sans-serif" font-size="22" font-weight="700" fill="#f5f0eb">Claude Pro Guide</text>
+  <!-- top-left brand row -->
+  <g transform="translate(80,75)">
+    <g transform="translate(0,0)">
+      <circle cx="20" cy="22" r="20" fill="url(#bigface)"/>
+      <ellipse cx="14" cy="13" rx="7" ry="4" fill="#fff" opacity=".22"/>
+      <circle cx="14" cy="20" r="2.2" fill="#1a0e08"/>
+      <circle cx="14.5" cy="19.3" r="0.7" fill="#fff"/>
+      <circle cx="26" cy="20" r="2.2" fill="#1a0e08"/>
+      <circle cx="26.5" cy="19.3" r="0.7" fill="#fff"/>
+      <path d="M14 26.5 Q20 31 26 26.5" stroke="#1a0e08" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </g>
+    <text x="55" y="30" font-family="Inter,system-ui,sans-serif" font-size="24" font-weight="700" fill="#f5f0eb" letter-spacing="-.5">ClaudeBro</text>
   </g>
 
-  <text x="80" y="320" font-family="Inter,system-ui,sans-serif" font-size="86" font-weight="800" fill="#f8f3ee" letter-spacing="-3">Everything Claude,</text>
-  <text x="80" y="420" font-family="Inter,system-ui,sans-serif" font-size="86" font-weight="800" fill="url(#text-grad)" letter-spacing="-3">in one place.</text>
+  <!-- big mascot on the right -->
+  <g transform="translate(900,180)">
+    <circle cx="120" cy="120" r="115" fill="url(#bigface)"/>
+    <ellipse cx="85" cy="65" rx="40" ry="22" fill="#fff" opacity=".22"/>
+    <circle cx="75" cy="105" r="35" fill="url(#bigblush)"/>
+    <circle cx="165" cy="105" r="35" fill="url(#bigblush)"/>
+    <circle cx="83" cy="113" r="13" fill="#1a0e08"/>
+    <circle cx="86" cy="109" r="4.5" fill="#fff"/>
+    <circle cx="157" cy="113" r="13" fill="#1a0e08"/>
+    <circle cx="160" cy="109" r="4.5" fill="#fff"/>
+    <path d="M75 155 Q120 195 165 155" stroke="#1a0e08" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <!-- sparkle -->
+    <g transform="translate(220,30)" fill="#f5b692">
+      <path d="M0 -16 L4 -4 L16 0 L4 4 L0 16 L-4 4 L-16 0 L-4 -4 Z"/>
+    </g>
+    <g transform="translate(20,40)" fill="#f5b692" opacity=".7">
+      <path d="M0 -8 L2 -2 L8 0 L2 2 L0 8 L-2 2 L-8 0 L-2 -2 Z"/>
+    </g>
+  </g>
+
+  <!-- big headline -->
+  <text x="80" y="320" font-family="Inter,system-ui,sans-serif" font-size="92" font-weight="800" fill="#f8f3ee" letter-spacing="-3">Everything Claude,</text>
+  <text x="80" y="425" font-family="Inter,system-ui,sans-serif" font-size="92" font-weight="800" fill="url(#text-grad)" letter-spacing="-3">in one place.</text>
 
   <text x="80" y="500" font-family="Inter,system-ui,sans-serif" font-size="26" fill="#c8bfb5" font-weight="500">101 skills · MCP · Plugins · API · Hooks · Slash commands · Models</text>
 
